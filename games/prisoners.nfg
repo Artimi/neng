@@ -1,0 +1,4 @@
+NFG 1 R "Prisoner's dilema"
+{ "Peter" "John" } { 2 2 }
+
+-10 -10 -20 0 0 -20 -1 -1

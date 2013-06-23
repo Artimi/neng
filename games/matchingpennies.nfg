@@ -1,0 +1,4 @@
+NFG 1 R "Matching pennies"
+{ "A" "B" } { 2 2 }
+
+1 -1 -1 1 -1 1 1 -1
