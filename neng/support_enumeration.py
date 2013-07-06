@@ -30,10 +30,13 @@ class SupportEnumeration(object):
         | b_k1 b_k2 ... b_kk -1 | | x_k |    | 0 |
         \ 1    1    ... 1     0 / \ v   /    \ 1 /
 
-        @params combination combination of strategies to make equation set
-        @params player number of player for who the equation matrix will be done
-        @params num_supports number of supports for players
-        @return equation matrix for solving in e.g. np.linalg.solve
+        Args:
+            combination combination of strategies to make equation set
+            player number of player for who the equation matrix will be done
+            num_supports number of supports for players
+
+        Returns:
+            equation matrix for solving in e.g. np.linalg.solve
         """
         row_index = np.zeros(self.game.shape[0], dtype=bool)
         col_index = np.zeros(self.game.shape[1], dtype=bool)
@@ -54,7 +57,8 @@ class SupportEnumeration(object):
         Computes all mixed NE of 2 player noncooperative games.
         If the game is degenerate game.degenerate flag is ticked.
 
-        @return set of NE computed by method support enumeration
+        Returns:
+            set of NE computed by method support enumeration
         """
         result = []
         # for every numbers of supports

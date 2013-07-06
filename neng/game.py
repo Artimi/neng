@@ -29,8 +29,12 @@ class Game(object):
 
     def __init__(self, nfg, trim='normalization'):
         """
-        @param nfg string containing the game in nfg format
-        @trim method of assuring that strategy profile lies in Delta
+        Initialize basic attributes in Game
+
+        Args:
+            nfg (str) string containing the game in nfg format
+            trim ('normalization'|'penalization') method of assuring that
+                strategy profile lies in Delta
         """
         self.read(nfg)
         self.deltaAssuranceMethod = trim
@@ -44,9 +48,12 @@ class Game(object):
         Computes pure best response strategy profile for given opponent strategy 
         and player
 
-        @params opponent strategy
-        @param player who should respond
-        @return set of strategies
+        Args:
+            player (int) player who should respond
+            strategy () opponent strategy
+
+        Returns:
+            set of best response strategies
         """
         strategy = list(strategy)
         result = set()
@@ -66,8 +73,8 @@ class Game(object):
         """
         Function computes pure Nash equlibria using brute force algorithm.
 
-        @return set of strategy profiles that was computed as pure nash
-        equlibria
+        Returns:
+            set of strategy profiles that was computed as pure nash equilibria
         """
         self.brs = [set() for i in xrange(self.num_players)]
         for player in xrange(self.num_players):
@@ -86,7 +93,8 @@ class Game(object):
 
     def getDominatedStrategies(self):
         """
-        @return list of dominated strategies per player
+        Returns:
+            list of dominated strategies per player
         """
         empty = [slice(None)] * self.num_players
         result = []
@@ -144,7 +152,8 @@ class Game(object):
         Degenerate game is defined for two-players games and there can be
         infinite number of mixed Nash equilibria.
 
-        @return True|False if game is said as degenerated
+        Returns:
+            True|False if game is said as degenerated
         """
         if self.num_players != 2:
             return False
@@ -170,8 +179,11 @@ class Game(object):
         Delta (basicaly to have character of probabilities for each player).
         We can assure this with two methods: normalization and penalization.
 
-        @params strategy_profile list of parameters to function
-        @return value of LyapunovFunction in given strategy_profile
+        Args:
+            strategy_profile list of parameters to function
+
+        Returns:
+            value of LyapunovFunction in given strategy_profile
         """
         v = 0.0
         acc = 0
@@ -199,12 +211,13 @@ class Game(object):
         """
         Function to compute payoff of given strategy_profile.
 
-        @param strategy_profile list of probability distributions
-        @param player player for who the payoff is computated
-        @param pure_strategy if not None player strategy will be replaced
-        by pure_strategy
-        @param normalize use normalization to strategy_profile
-        @return value of payoff
+        Args:
+            strategy_profile list of probability distributions
+            player player for who the payoff is computated
+            pure_strategy if not None player strategy will be replaced by pure_strategy
+
+        Returns:
+            value of payoff
         """
         result = 0.0
         if len(strategy_profile) == self.num_players:
@@ -228,8 +241,11 @@ class Game(object):
         It means that instead of list of length sum_shape we have got nested
         list of length num_players and inner arrays are of shape[player] length
 
-        @param strategy_profile to convert
-        @return deep_strategy_profile
+        Args:
+            strategy_profile to convert
+
+        Returns:
+            deep_strategy_profile
         """
         offset = 0
         deep_strategy_profile = []
@@ -245,8 +261,11 @@ class Game(object):
         for all strategies sum p(si) = 1
         p(si) >= 0.0
 
-        @param strategy np.array of probability distribution for one player
-        @returns np.array normalized strategy distribution
+        Args:
+            strategy np.array of probability distribution for one player
+
+        Returns:
+            np.array normalized strategy distribution
         """
         return np.abs(strategy) / np.sum(np.abs(strategy))
 
@@ -260,8 +279,11 @@ class Game(object):
         """
         Normalize whole strategy profile by strategy of each player
 
-        @parameter strategy_profile to be normalized
-        @return normalized strategy_profile
+        Args:
+            strategy_profile to be normalized
+        
+        Returns:
+            normalized strategy_profile
         """
         result = []
         acc = 0
@@ -275,8 +297,11 @@ class Game(object):
         """
         Find all equilibria, using method
 
-        @params method method from Game.METHODS to be used
-        @return list of NE(list of probabilities), if not found return None
+        Args:
+            method method from Game.METHODS to be used
+
+        Returns:
+            list of NE(list of probabilities), if not found return None
         """
         if method == 'pne':
             result = self.getPNE()
@@ -311,7 +336,8 @@ class Game(object):
         Reads game in .nfg format and stores data to class variables.
         Can read nfg files in outcome and payoff version.
 
-        @param nfg string with nfg formated game
+        Args:
+            nfg string with nfg formated game
         """
         tokens = shlex.split(nfg)
         preface = ["NFG", "1", "R"]
@@ -372,7 +398,8 @@ class Game(object):
         """
         Output in nfg payoff format.
 
-        @return game in nfg payoff format
+        Returns:
+            game in nfg payoff format
         """
         result = "NFG 1 R "
         result += "\"" + self.name + "\"\n"
@@ -390,8 +417,11 @@ class Game(object):
         """
         Translate tuple form of strategy profile to list of probabilities
 
-        @params t tuple to translate
-        @return list of numbers in long format
+        Args:
+            t tuple to translate
+
+        Returns:
+            list of numbers in long format
         """
         result = [0.0] * self.sum_shape
         offset = 0
@@ -404,8 +434,10 @@ class Game(object):
         """
         Print Nash equilibria with with some statistics
 
-        @params nes list of nash equilibria
-        @params payoff print also informations about players payoff
+        Args:
+            nes list of nash equilibria
+            payoff bool flag to print payoff also
+            checkNE bool run test for every printed NE
         """
         result = ""
         success = True
@@ -441,8 +473,11 @@ class Game(object):
         check if strategy_profile is really NE. If the payoff will be bigger
         it's not the NE.
 
-        @param strategy_profile check if is NE
-        @return True if strategy_profile passed test, False otherwise
+        Args:
+            strategy_profile check if is NE
+
+        Returns:
+            True if strategy_profile passed test, False otherwise
         """
         payoffs = []
         deep_strategy_profile = []

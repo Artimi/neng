@@ -8,6 +8,7 @@ import collections
 import logging
 
 
+
 class CMAES(object):
     """
     Class CMAES represent algorithm Covariance Matrix Adaptation - Evolution
@@ -16,10 +17,11 @@ class CMAES(object):
 
     def __init__(self, func, N, sigma=0.3, xmean=None):
         """
-        @param func function to be minimized
-        @param N number of parameter of function
-        @param sigma step size of method
-        @xmean initial point, if None some is generated
+        Args:
+            func (function): function to be minimized
+            N (int): number of parameter of function
+            sigma (float): step size of method
+            xmean (np.array): initial point, if None some is generated
         """
         self.func = func
         self.N = N
@@ -55,9 +57,10 @@ class CMAES(object):
         Init variables that can change after restart of method, basically that
         are dependent on lamda.
 
-        @param sigma step size
-        @xmean initial point
-        @lamda_factor factor for multiplying old lamda
+        Args:
+            sigma (float): step size
+            xmean (np.array): initial point
+            lamda_factor (float): factor for multiplying old lamda
         """
         self.sigma = sigma
         if xmean is None:
@@ -102,6 +105,9 @@ class CMAES(object):
     def newGeneration(self):
         """
         Generate new generation of individuals.
+
+        Returns:
+            new generation
         """
         self.generation += 1
         self.arz = np.random.randn(self.lamda, self.N)
@@ -112,7 +118,8 @@ class CMAES(object):
         """
         Update values of method from new evaluated generation
 
-        @param arfitness list of func values to individuals
+        Args:
+            arfitness (np.array): list of func values to individuals
         """
         self.counteval += self.lamda
         self.arfitness = arfitness
@@ -161,7 +168,8 @@ class CMAES(object):
         reached or the function is acceptable minimized, iterations ends and
         result is returned.
 
-        @returns result of minimization
+        Returns:
+            scipy.optimize.Result : result of minimization.
         """
         while self.status != 0 and self.status != 1:
             if self.status > 2:
