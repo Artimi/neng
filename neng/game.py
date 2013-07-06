@@ -21,9 +21,9 @@ class Game(object):
     using brute force.
 
     usage:
-    >>> g = Game(game_str)
-    >>> ne = g.findEquilibria(method='pne')
-    >>> print g.printNE(ne)
+        >>> g = Game(game_str)
+        >>> ne = g.findEquilibria(method='pne')
+        >>> print g.printNE(ne)
     """
     METHODS = ['L-BFGS-B', 'SLSQP', 'CMAES', 'support_enumeration', 'pne']
 
@@ -167,13 +167,15 @@ class Game(object):
             return False
 
     def LyapunovFunction(self, strategy_profile):
-        """
+        r"""
         Lyapunov function. If LyapunovFunction(p) == 0 then p is NE.
+        
+        .. math::
 
-        xij(p) = ui(si, p_i)
-        yij(p) = xij(p) - ui(p)
-        zij(p) = max[yij(p), 0]
-        LyapunovFunction(p) = sum_{i \in N} sum_{1 <= j <= mi} [zij(p)]^2
+            x_{ij}(p)           & = u_{i}(si, p_i) \\
+            y_{ij}(p)           & = x_{ij}(p) - u_i(p) \\
+            z_{ij}(p)           & = \max[y_{ij}(p), 0] \\
+            LyapunovFunction(p) & = \sum_{i \in N} \sum_{1 \leq j \leq \mu} z_{ij}(p)^2
 
         Beside this function we need that strategy_profile is in universum
         Delta (basicaly to have character of probabilities for each player).

@@ -15,23 +15,55 @@ class SupportEnumeration(object):
         self.game = game
 
     def getEquationSet(self, combination, player, num_supports):
-        """
+        R"""
         Return set of equations for given player and combination of strategies
         for 2 players games in support_enumeration
 
         This function returns matrix to compute (Nisan algorithm 3.4)
-        (I = combination[player])
-        \sum_{i \in I} x_i b_{ij} = v
-        \sum_{i \in I} x_i = 1
+
+
+        For given :math:`I` (subset of strategies) of player 1 we can write down next
+        equations:
+
+        .. math::
+
+            \sum_{i \in I} x_i b_{ij} = v \\
+            \sum_{i \in I} x_i = 1
+
+        Where :math:`x_i` is probability of ith strategy, :math:`b_{ij}` is payoff for player
+        2 with strategies :math:`i \in I, j \in J`, :math:`v` payoff for player 1
+
         In matrix form (k = num_supports):
-        / b_11 b_12 ... b_1k -1 \ / x_1 \    / 0 \
-        | b_21 b_22 ... b_2k -1 | | x_2 |    | 0 |
-        | ...  ...  ... ... ... | | ... | =  |...|
-        | b_k1 b_k2 ... b_kk -1 | | x_k |    | 0 |
-        \ 1    1    ... 1     0 / \ v   /    \ 1 /
+        
+        .. math::
+        
+            \begin{pmatrix}
+            b_{11} & b_{12} & \cdots & b_{1k} & -1 \\
+            b_{21} & b_{22} & \cdots & b_{2k} & -1 \\
+            \vdots  & \vdots  & \ddots & \vdots & -1 \\
+            b_{k1} & b_{k2} & \cdots & b_{kk} & -1 \\
+            1      &    1   & \cdots &  1     &  0       
+            \end{pmatrix}
+            \begin{pmatrix}
+            x_1 \\
+            x_2 \\
+            \vdots \\
+            x_k \\
+            v
+            \end{pmatrix}
+            =
+            \begin{pmatrix}
+            0 \\
+            0 \\
+            \vdots \\
+            0 \\
+            1
+            \end{pmatrix}
+
+        Analogically for result y for player 2 with payoff matrix A
 
         Args:
-            combination combination of strategies to make equation set
+            combination of strategies to make equation set
             player number of player for who the equation matrix will be done
             num_supports number of supports for players
 
