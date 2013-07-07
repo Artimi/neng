@@ -13,7 +13,7 @@ config = {
     #'download_url': 'Where to download it.',
     'author_email': 'petrsebek1@gmail.com',
     'version': '0.1',
-    'install_requires': ['nose'],
+    'install_requires': ['nose', 'numpy', 'scipy'],
     'packages': ['neng'],
     'scripts': [],
     'name': 'neng'
