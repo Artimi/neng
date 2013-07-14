@@ -26,3 +26,4 @@ U"""
 """
 
 from game import Game
+from strategy_profile import StrategyProfile
