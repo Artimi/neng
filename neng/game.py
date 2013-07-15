@@ -430,9 +430,13 @@ class Game(object):
         result += " } { "
         result += " ".join(map(str, self.shape))
         result += " }\n\n"
-        for payoff in np.nditer(self.array[0], order="F", flags=['refs_ok']):
-            for i in payoff.flat[0]:
-                    result += str(i) + " "
+        it = np.nditer(self.array[0], order='F', flags=['multi_index', 'refs_ok'])
+        payoffs = []
+        while not it.finished:
+            for player in xrange(self.num_players):
+                payoffs.append(self.array[player][it.multi_index])
+            it.iternext()
+        result += " ".join(map(str, payoffs))
         return result
 
     def coordinateToStrategyProfile(self, t):
