@@ -22,11 +22,11 @@
 #SOFTWARE.
 
 from __future__ import division
-import numpy as np
-import scipy.optimize
 import collections
 import logging
 
+import numpy as np
+import scipy.optimize
 
 
 class CMAES(object):
@@ -46,10 +46,10 @@ class CMAES(object):
         self.func = func
         self.N = N
         self.store_parameters = {'func': func,
-                                 'N':    N,
+                                 'N': N,
                                  'sigma': sigma,
                                  'xmean': xmean,
-                                }
+        }
         self.stopeval = 1e4 * self.N / 2
         self.stopfitness = 1e-10
         self.eigenval = 0
@@ -101,9 +101,9 @@ class CMAES(object):
         self.cs = (self.mueff + 2) / (self.N + self.mueff + 5)
         self.c1 = 2 / ((self.N + 1.3) ** 2 + self.mueff)
         self.cmu = min(1 - self.c1, 2 * (self.mueff - 2 + 1 / self.mueff) /
-                       ((self.N + 2) ** 2 + self.mueff))
+                                    ((self.N + 2) ** 2 + self.mueff))
         self.damps = 1 + 2 * max(0, np.sqrt((self.mueff - 1) /
-                                (self.N + 1)) - 1) + self.cs
+                                            (self.N + 1)) - 1) + self.cs
         # initialize dynamic (internal) strategy parameters and constants
         self.pc = np.zeros((1, self.N))
         self.ps = np.zeros_like(self.pc)
@@ -148,16 +148,21 @@ class CMAES(object):
         self.arfitness = self.arfitness[self.arindex]
         self.xmean = np.dot(self.arx[self.arindex[:self.mu]].T, self.weights)
         self.zmean = np.dot(self.arz[self.arindex[:self.mu]].T, self.weights)
-        self.ps = np.dot((1 - self.cs), self.ps) + np.dot((np.sqrt(self.cs * (2 - self.cs) * self.mueff)), np.dot(self.B, self.zmean))
-        self.hsig = np.linalg.norm(self.ps) / np.sqrt(1 - (1 - self.cs) ** (2 * self.counteval / self.lamda)) / self.chiN < 1.4 + 2 / (self.N + 1)
-        self.pc = np.dot((1 - self.cc), self.pc) + np.dot(np.dot(self.hsig, np.sqrt(self.cc * (2 - self.cc) * self.mueff)), np.dot(np.dot(self.B, self.D), self.zmean))
+        self.ps = np.dot((1 - self.cs), self.ps) + np.dot((np.sqrt(self.cs * (2 - self.cs) * self.mueff)),
+                                                          np.dot(self.B, self.zmean))
+        self.hsig = np.linalg.norm(self.ps) / np.sqrt(
+            1 - (1 - self.cs) ** (2 * self.counteval / self.lamda)) / self.chiN < 1.4 + 2 / (self.N + 1)
+        self.pc = np.dot((1 - self.cc), self.pc) + np.dot(
+            np.dot(self.hsig, np.sqrt(self.cc * (2 - self.cc) * self.mueff)),
+            np.dot(np.dot(self.B, self.D), self.zmean))
         # adapt covariance matrix C
         self.C = np.dot((1 - self.c1 - self.cmu), self.C) \
-            + np.dot(self.c1, ((self.pc * self.pc.T)
-            + np.dot((1 - self.hsig) * self.cc * (2 - self.cc), self.C))) \
-            + np.dot(self.cmu,
-                     np.dot(np.dot(np.dot(np.dot(self.B, self.D), self.arz[self.arindex[:self.mu]].T),
-                            np.diag(self.weights)), (np.dot(np.dot(self.B, self.D), self.arz[self.arindex[:self.mu]].T)).T))
+                 + np.dot(self.c1, ((self.pc * self.pc.T)
+                                    + np.dot((1 - self.hsig) * self.cc * (2 - self.cc), self.C))) \
+                 + np.dot(self.cmu,
+                          np.dot(np.dot(np.dot(np.dot(self.B, self.D), self.arz[self.arindex[:self.mu]].T),
+                                        np.diag(self.weights)),
+                                 (np.dot(np.dot(self.B, self.D), self.arz[self.arindex[:self.mu]].T)).T))
         # adapt step size sigma
         self.sigma = self.sigma * np.exp((self.cs / self.damps) * (np.linalg.norm(self.ps) / self.chiN - 1))
         # diagonalization
@@ -166,7 +171,7 @@ class CMAES(object):
             self.C = np.triu(self.C) + np.triu(self.C, 1).T
             self.D, self.B = np.linalg.eig(self.C)
             self.D = np.diag(np.sqrt(self.D))
-        #history
+            #history
         self.history['short_best'].append(arfitness[0])
         if len(self.history['short_best']) >= self.short_history_len:
             self.history['short_best'].popleft()
@@ -193,7 +198,7 @@ class CMAES(object):
         """
         while self.status != 0 and self.status != 1:
             if self.status > 2:
-                logging.warning("Restart due to %s", self.stop_criteria[self.status] )
+                logging.warning("Restart due to %s", self.stop_criteria[self.status])
                 self.restart(2)
             pop = self.newGeneration()
             values = np.empty(pop.shape[0])
@@ -201,7 +206,7 @@ class CMAES(object):
                 values[i] = self.func(pop[i])
             self.update(values)
         return self.result
-    
+
     def restart(self, lamda_factor):
         """
         Restart whole method to initial state, but with population multiplied
@@ -223,9 +228,11 @@ class CMAES(object):
                                 #np.median(list(itertools.islice(self.history['long_median'],int(0.3*len(self.history['long_median']))))),
                                 np.linalg.cond(self.C) > self.condition_cov_max,
                                 self.sigma * np.max(self.D) >= self.tolxup,
-                                max(self.history['short_best']) - min(self.history['short_best']) <= self.tolfun and self.arfitness[-1] - self.arfitness[0] <= self.tolfun,
-                                np.all(self.sigma * self.pc < self.tolx) and np.all(self.sigma * np.sqrt(np.diag(self.C)) < self.tolx)
-                               )
+                                max(self.history['short_best']) - min(self.history['short_best']) <= self.tolfun and
+                                self.arfitness[-1] - self.arfitness[0] <= self.tolfun,
+                                np.all(self.sigma * self.pc < self.tolx) and np.all(
+                                    self.sigma * np.sqrt(np.diag(self.C)) < self.tolx)
+        )
         if np.any(self.stop_conditions):
             self.status = self.stop_conditions.index(True)
         return True
@@ -234,8 +241,10 @@ class CMAES(object):
         """
         Function for logging the progress of method.
         """
-        logging.debug("generation: {generation:<5}, v: {v_function:<6.2e}, sigma: {sigma:.2e}, best: {best}, xmean: {xmean}".format(
-            generation=self.generation, best=map(lambda x: round(x, 8), self.arx[self.arindex[0]]), v_function=self.arfitness[0], sigma=self.sigma, xmean=self.xmean))
+        logging.debug(
+            "generation: {generation:<5}, v: {v_function:<6.2e}, sigma: {sigma:.2e}, best: {best}, xmean: {xmean}".format(
+                generation=self.generation, best=map(lambda x: round(x, 8), self.arx[self.arindex[0]]),
+                v_function=self.arfitness[0], sigma=self.sigma, xmean=self.xmean))
 
     @property
     def result(self):
@@ -243,9 +252,9 @@ class CMAES(object):
         Result of method. Not returned while minimization is in progress.
         """
         if self.status < 0:
-                raise AttributeError("Result is not ready yet, cmaes is not finished")
+            raise AttributeError("Result is not ready yet, cmaes is not finished")
         else:
-            self._result = scipy.optimize.Result()        
+            self._result = scipy.optimize.Result()
             self._result['x'] = self.arx[self.arindex[0]]
             self._result['fun'] = self.arfitness[0]
             self._result['nfev'] = self.counteval

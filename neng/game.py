@@ -22,12 +22,14 @@
 #SOFTWARE.
 
 from __future__ import division
-import numpy as np
 import shlex
 from operator import mul
-import scipy.optimize
 import sys
 import logging
+
+import numpy as np
+import scipy.optimize
+
 import cmaes
 import support_enumeration
 
@@ -104,7 +106,7 @@ class Game(object):
             for strategy in np.ndindex(*p_view):
                 # add to list of best responses
                 self.brs[player].update(self.bestResponse(player, strategy))
-        # check degeneration of a game
+            # check degeneration of a game
         self.degenerate = self.isDegenerate()
         # PNE is where all player have best response
         ne_coordinates = set.intersection(*self.brs)
@@ -160,7 +162,8 @@ class Game(object):
                     original_strategy = strategy
                     while original_strategy in self.deleted_strategies[player]:
                         original_strategy += 1
-                    self.deleted_strategies[player] = np.append(self.deleted_strategies[player], original_strategy)#strategy + np.sum(self.deleted_strategies[player] <= strategy))
+                    self.deleted_strategies[player] = np.append(self.deleted_strategies[player],
+                                                                original_strategy)#strategy + np.sum(self.deleted_strategies[player] <= strategy))
                 self.shape[player] -= len(strategies)
             self.sum_shape = sum(self.shape)
             dominated_strategies = self.getDominatedStrategies()
@@ -180,7 +183,7 @@ class Game(object):
         if self.brs is None:
             self.getPNE()
         num_brs = [len(x) for x in self.brs]
-        num_strategies = [reduce(mul, self.shape[:k] + self.shape[(k+1):]) for k in xrange(self.num_players)]
+        num_strategies = [reduce(mul, self.shape[:k] + self.shape[(k + 1):]) for k in xrange(self.num_players)]
         if num_brs != num_strategies:
             return True
         else:
@@ -219,7 +222,7 @@ class Game(object):
         for player in range(self.num_players):
             u = self.payoff(deep_strategy_profile, player)
             if self.deltaAssuranceMethod == 'penalization':
-                one_sum_penalty = (1 - np.sum(strategy_profile[acc:acc+self.shape[player]])) ** 2
+                one_sum_penalty = (1 - np.sum(strategy_profile[acc:acc + self.shape[player]])) ** 2
                 v += one_sum_penalty
             acc += self.shape[player]
             for pure_strategy in range(self.shape[player]):
@@ -228,7 +231,7 @@ class Game(object):
                 g = max(z, 0.0)
                 v += g ** 2
         return v
-    
+
     def payoff(self, strategy_profile, player, pure_strategy=None):
         """
         Function to compute payoff of given strategy_profile.
@@ -252,7 +255,7 @@ class Game(object):
             deep_strategy_profile = self.strategyProfileToDeep(strategy_profile)
         else:
             raise Exception("Length of strategy_profile: '{0}', does not match.".format(strategy_profile))
-        # make product of each probability, returns num_players-dimensional array 
+            # make product of each probability, returns num_players-dimensional array
         product = reduce(lambda x, y: np.tensordot(x, y, 0), deep_strategy_profile)
         result = np.sum(product * self.array[player])
         return result
@@ -272,7 +275,7 @@ class Game(object):
         offset = 0
         deep_strategy_profile = []
         for player, i in enumerate(self.shape):
-            strategy = strategy_profile[offset:offset+i]
+            strategy = strategy_profile[offset:offset + i]
             deep_strategy_profile.append(strategy)
             offset += i
         return deep_strategy_profile
@@ -296,7 +299,6 @@ class Game(object):
             deep_strategy_profile[index] = self.normalize(strategy)
         return deep_strategy_profile
 
-
     def normalizeStrategyProfile(self, strategy_profile):
         """
         Normalize whole strategy profile by strategy of each player
@@ -310,7 +312,7 @@ class Game(object):
         result = []
         acc = 0
         for i in self.shape:
-            strategy = np.array(strategy_profile[acc:acc+i])
+            strategy = np.array(strategy_profile[acc:acc + i])
             result.extend(self.normalize(strategy))
             acc += i
         return result
@@ -344,7 +346,7 @@ class Game(object):
             result = scipy.optimize.minimize(self.LyapunovFunction,
                                              np.random.rand(self.sum_shape),
                                              method=method, tol=1e-10,
-                                             options={"maxiter":1e3 * self.sum_shape ** 2})
+                                             options={"maxiter": 1e3 * self.sum_shape ** 2})
         logging.info(result)
         if result.success:
             r = []
@@ -374,7 +376,7 @@ class Game(object):
             self.shape = tokens[brackets[2] + 1:brackets[3]]
             self.shape = map(int, self.shape)
             payoffs_flat = tokens[brackets[3] + 1:brackets[3] + 1 +
-                                  reduce(mul, self.shape) * self.num_players]
+                                                  reduce(mul, self.shape) * self.num_players]
             payoffs_flat = map(float, payoffs_flat)
             payoffs = []
             for i in xrange(0, len(payoffs_flat), self.num_players):
@@ -402,7 +404,8 @@ class Game(object):
             outcomes = []
             outcomes.append([0] * self.num_players)
             for i in xrange(i, len(brackets_pairs)):
-                outcomes.append(map(lambda x: float(x.translate(None, ',')), tokens[brackets_pairs[i][0] + 2:brackets_pairs[i][1]]))
+                outcomes.append(
+                    map(lambda x: float(x.translate(None, ',')), tokens[brackets_pairs[i][0] + 2:brackets_pairs[i][1]]))
             payoffs = [outcomes[out] for out in map(int, tokens[after_brackets:])]
         self.sum_shape = np.sum(self.shape)
         self.array = []
@@ -509,7 +512,7 @@ class Game(object):
         deep_strategy_profile = []
         acc = 0
         for player, i in enumerate(self.shape):
-            strategy = np.array(strategy_profile[acc:acc+i])
+            strategy = np.array(strategy_profile[acc:acc + i])
             deep_strategy_profile.append(strategy)
             acc += i
             #payoffs
@@ -523,16 +526,20 @@ class Game(object):
                 dsp[player] = es
                 current_payoff = self.payoff(dsp, player)
                 if (current_payoff - payoffs[player]) > accuracy:
-                    logging.warning('Player {0} has better payoff with {1}, previous payoff {2}, current payoff {3}, difference {4}. '.format(player, dsp[player], payoffs[player],
-                                    current_payoff, payoffs[player] - current_payoff))
+                    logging.warning(
+                        'Player {0} has better payoff with {1}, previous payoff {2}, current payoff {3}, difference {4}. '.format(
+                            player, dsp[player], payoffs[player],
+                            current_payoff, payoffs[player] - current_payoff))
                     logging.warning("NE test failed")
                     return False
             for i in xrange(num_tests):
                 dsp[player] = self.normalize(np.random.rand(self.shape[player]))
                 current_payoff = self.payoff(dsp, player)
                 if (current_payoff - payoffs[player]) > accuracy:
-                    logging.warning('Player {0} has better payoff with {1}, previous payoff {2}, current payoff {3}, difference {4}. '.format(player, dsp[player], payoffs[player],
-                                    current_payoff, payoffs[player] - current_payoff))
+                    logging.warning(
+                        'Player {0} has better payoff with {1}, previous payoff {2}, current payoff {3}, difference {4}. '.format(
+                            player, dsp[player], payoffs[player],
+                            current_payoff, payoffs[player] - current_payoff))
                     logging.warning("NE test failed")
                     return False
         logging.info("NE test passed")
@@ -542,9 +549,10 @@ class Game(object):
 if __name__ == '__main__':
     import argparse
     import time
+
     parser = argparse.ArgumentParser(
-    formatter_class=argparse.RawDescriptionHelpFormatter,
-    description="""
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="""
 NenG - Nash Equilibrium Noncooperative Games.
 Tool for computing Nash equilibria in noncooperative games.
 Specifically:
@@ -553,12 +561,18 @@ All mixed Nash equilibria in two-players games (--method=support_enumeration).
 One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SLSQP}).
 """)
     parser.add_argument('-f', '--file', required=True, help="File where game in nfg format is saved.")
-    parser.add_argument('-m', '--method', default='CMAES', choices=Game.METHODS, help="Method to use for computing Nash equlibria.")
-    parser.add_argument('-e', '--elimination', action='store_true', default=False, help="Use Iterative Elimination of Strictly Dominated Strategies before computing NE.")
-    parser.add_argument('-p', '--payoff', action='store_true', default=False, help="Print also players payoff with each Nash equilibrium.")
-    parser.add_argument('-c', '--checkNE', action='store_true', default=False, help="After computation check if found strategy profile is really Nash equilibrium.")
-    parser.add_argument('-t', '--trim', choices=('normalization', 'penalization'), default='normalization', help="Method for keeping strategy profile in probability distribution universum.")
-    parser.add_argument('-l', '--log', default="WARNING", choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"), help="Level of logs to save/print")
+    parser.add_argument('-m', '--method', default='CMAES', choices=Game.METHODS,
+                        help="Method to use for computing Nash equlibria.")
+    parser.add_argument('-e', '--elimination', action='store_true', default=False,
+                        help="Use Iterative Elimination of Strictly Dominated Strategies before computing NE.")
+    parser.add_argument('-p', '--payoff', action='store_true', default=False,
+                        help="Print also players payoff with each Nash equilibrium.")
+    parser.add_argument('-c', '--checkNE', action='store_true', default=False,
+                        help="After computation check if found strategy profile is really Nash equilibrium.")
+    parser.add_argument('-t', '--trim', choices=('normalization', 'penalization'), default='normalization',
+                        help="Method for keeping strategy profile in probability distribution universum.")
+    parser.add_argument('-l', '--log', default="WARNING", choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"),
+                        help="Level of logs to save/print")
     parser.add_argument('--log-file', default=None, help='Log file. If omitted log is printed to stdout.')
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.log.upper(), None),
@@ -573,7 +587,7 @@ One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SL
         g.IESDS()
     result = g.findEquilibria(args.method)
     if result is not None:
-        text, success =  g.printNE(result, payoff=args.payoff, checkNE=args.checkNE)
+        text, success = g.printNE(result, payoff=args.payoff, checkNE=args.checkNE)
         if success:
             print text
         else:

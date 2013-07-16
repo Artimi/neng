@@ -23,10 +23,12 @@
 
 from __future__ import division
 
+
 class StrategyProfile(list):
     """
     Wraps information about strategy profile of game.
     """
+
     def __init__(self, profile, shape):
         self._shape = shape
         self._flatToDeep(profile)
@@ -45,7 +47,7 @@ class StrategyProfile(list):
         """
         offset = 0
         for player, i in enumerate(self._shape):
-            strategy = strategy_profile[offset:offset+i]
+            strategy = strategy_profile[offset:offset + i]
             self.append(strategy)
             offset += i
         return self
@@ -56,7 +58,7 @@ class StrategyProfile(list):
             for i in strategy:
                 sumation += abs(i)
             for index, value in enumerate(strategy):
-                self[player][index] = abs(value)/sumation 
+                self[player][index] = abs(value) / sumation
         return self
 
     def __str__(self):
