@@ -21,9 +21,11 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-import numpy as np
 import logging
 import itertools
+
+import numpy as np
+
 
 class SupportEnumeration(object):
     """
@@ -123,14 +125,14 @@ class SupportEnumeration(object):
             for player in xrange(self.game.num_players):
                 supports.append(itertools.combinations(
                     xrange(self.game.shape[player]), num_supports))
-            # cartesian product of combinations of both player
+                # cartesian product of combinations of both player
             for combination in itertools.product(supports[0], supports[1]):
                 mne = []
                 is_mne = True
                 # for both player compute set of equations
                 for player in xrange(self.game.num_players):
                     equations = self.getEquationSet(combination, player,
-                                                      num_supports)
+                                                    num_supports)
                     try:
                         equations_result = np.linalg.solve(equations, equal)
                     except np.linalg.LinAlgError:  # unsolvable equations
@@ -144,9 +146,9 @@ class SupportEnumeration(object):
                     player_strategy_profile = np.zeros(self.game.shape[player])
                     player_strategy_profile[list(combination[player])] = probabilities
                     mne.append(player_strategy_profile)
-                #best response
+                    #best response
                 if is_mne:
-                    br = [[],[]]
+                    br = [[], []]
                     for player in xrange(self.game.num_players):
                         if player == 0:
                             oponent_strategy = mne[(player + 1) % 2].reshape(1, self.game.shape[1])
@@ -154,15 +156,15 @@ class SupportEnumeration(object):
                             oponent_strategy = mne[(player + 1) % 2].reshape(self.game.shape[0], 1)
                         payoffs = np.sum(self.game.array[player] * oponent_strategy, axis=(player + 1) % 2)
                         maximum = np.max(payoffs)
-                        br[player] = tuple(np.where(abs(payoffs - maximum)< 1e-6)[0])
-                        if br[player] != combination[player]:
+                        br[player] = tuple(np.where(abs(payoffs - maximum) < 1e-6)[0])
+                        if combination[player][0] not in br[player]:
                             is_mne = False
                             break
-                    #if len(br[0]) != len(br[1]):
-                        #self.game.degenerate = True
                 if is_mne:
                     result.append([item for sublist in mne for item in sublist])
         return result
+        #FIXME: doesn't find PNE in gambit.nfg
+
 
 def computeNE(game):
     """
