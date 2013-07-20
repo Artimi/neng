@@ -26,6 +26,8 @@ import itertools
 
 import numpy as np
 
+import strategy_profile as sp
+
 
 class SupportEnumeration(object):
     """
@@ -161,9 +163,8 @@ class SupportEnumeration(object):
                             is_mne = False
                             break
                 if is_mne:
-                    result.append([item for sublist in mne for item in sublist])
+                    result.append(sp.StrategyProfile([item for sublist in mne for item in sublist], self.game.shape))
         return result
-        #FIXME: doesn't find PNE in gambit.nfg
 
 
 def computeNE(game):
