@@ -22,18 +22,28 @@
 #SOFTWARE.
 
 from __future__ import division
+import copy
 
 
-class StrategyProfile(list):
+class StrategyProfile(object):
     """
     Wraps information about strategy profile of game.
     """
 
-    def __init__(self, profile, shape):
-        self._shape = shape
-        self._flatToDeep(profile)
+    def __init__(self, profile, shape, coordinate=False):
+        self.shape = shape
+        self._list = []
+        if coordinate:
+            self._coordinateToDeep(profile)
+        else:
+            self._flatToDeep(profile)
 
-    def _flatToDeep(self, strategy_profile):
+    def _coordinateToDeep(self, coordinate):
+        for player in xrange(len(self.shape)):
+            self._list.append([])
+            self.updateWithPureStrategy(player, coordinate[player])
+
+    def _flatToDeep(self, profile):
         """
         Convert strategy_profile to deep strategy profile.
         It means that instead of list of length sum_shape we have got nested
@@ -46,30 +56,45 @@ class StrategyProfile(list):
             deep strategy profile
         """
         offset = 0
-        for player, i in enumerate(self._shape):
-            strategy = strategy_profile[offset:offset + i]
-            self.append(strategy)
+        for player, i in enumerate(self.shape):
+            strategy = profile[offset:offset + i]
+            self._list.append(strategy)
             offset += i
         return self
 
     def normalize(self):
-        for player, strategy in enumerate(self):
+        for player, strategy in enumerate(self._list):
             sumation = 0
             for i in strategy:
                 sumation += abs(i)
             for index, value in enumerate(strategy):
-                self[player][index] = abs(value) / sumation
+                self._list[player][index] = abs(value) / sumation
         return self
+
+    def copy(self):
+        return copy.deepcopy(self)
+
+    def updateWithPureStrategy(self, player, strategy):
+        self._list[player] = [0.0] * self.shape[player]
+        self._list[player][strategy] = 1.0
 
     def __str__(self):
         result = ''
-        flat_profile = [item for sublist in self for item in sublist]
+        flat_profile = [item for sublist in self._list for item in sublist]
         result += ', '.join(map(str, flat_profile))
         return result
 
+    def __repr__(self):
+        return self._list.__repr__()
+
     def __setitem__(self, key, value):
-        if self._shape[key] != len(value):
+        if self.shape[key] != len(value):
             raise IndexError("Strategy has to be same length as corresponding shape value is.")
         else:
-            super(StrategyProfile, self).__setitem__(key, value)
+            self._list.__setitem__(key, value)
 
+    def __getitem__(self, item):
+        return self._list.__getitem__(item)
+
+    def __eq__(self, other):
+        return self._list == other._list
