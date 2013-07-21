@@ -110,6 +110,13 @@ class StrategyProfile(object):
         self._list[player][pure_strategy] = 1.0
         return self
 
+    def copy(self):
+        return copy.deepcopy(self)
+
+    def updateWithPureStrategy(self, player, strategy):
+        self._list[player] = [0.0] * self.shape[player]
+        self._list[player][strategy] = 1.0
+
     def __str__(self):
         result = ''
         flat_profile = [item for sublist in self._list for item in sublist]

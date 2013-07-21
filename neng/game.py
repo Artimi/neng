@@ -248,7 +248,7 @@ class Game(object):
         sp = strategy_profile.copy()
         if pure_strategy is not None:
             sp.updateWithPureStrategy(player, pure_strategy)
-            # make product of each probability, returns num_players-dimensional array
+        # make product of each probability, returns num_players-dimensional array
         product = reduce(lambda x, y: np.tensordot(x, y, 0), sp)
         result = np.sum(product * self.array[player])
         return result
