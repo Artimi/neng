@@ -22,7 +22,7 @@
 #SOFTWARE.
 
 from __future__ import division
-import copy
+import numpy as np
 
 
 class StrategyProfile(object):
@@ -31,6 +31,14 @@ class StrategyProfile(object):
     """
 
     def __init__(self, profile, shape, coordinate=False):
+        """
+        :param profile: one- level list of probability coefficients
+        :type profile: list
+        :param shape: list of number of strategies per player
+        :type shape: list
+        :param coordinate: if True, then profile is considered as coordinate in game universum (depict pure strategy profile)
+        :type coordinate: bool
+        """
         self.shape = shape
         self._list = []
         if coordinate:
@@ -39,9 +47,15 @@ class StrategyProfile(object):
             self._flatToDeep(profile)
 
     def _coordinateToDeep(self, coordinate):
+        """
+        Convert coordinate to deep strategy profile
+
+        :param coordinate: list of numbers to convert
+        :type coordinate: list
+        """
         for player in xrange(len(self.shape)):
-            self._list.append([])
-            self.updateWithPureStrategy(player, coordinate[player])
+            self._list.append(np.zeros(self.shape[player]))
+            self._list[player][coordinate[player]] = 1.0
 
     def _flatToDeep(self, profile):
         """
@@ -49,34 +63,52 @@ class StrategyProfile(object):
         It means that instead of list of length sum_shape we have got nested
         list of length num_players and inner arrays are of shape[player] length
 
-        Args:
-            strategy_profile to convert
-
-        Returns:
-            deep strategy profile
+        :param profile: strategy profile to convet
+        :type profile: list
+        :return: self
         """
         offset = 0
         for player, i in enumerate(self.shape):
             strategy = profile[offset:offset + i]
-            self._list.append(strategy)
+            self._list.append(np.array(strategy))
             offset += i
         return self
 
     def normalize(self):
+        """
+        Normalizes values in StrategyProfile, values can't be negative,
+        bigger than one and sum of values of one strategy has to be 1.0.
+
+        :return: self
+        """
         for player, strategy in enumerate(self._list):
-            sumation = 0
-            for i in strategy:
-                sumation += abs(i)
-            for index, value in enumerate(strategy):
-                self._list[player][index] = abs(value) / sumation
+            self._list[player] = np.abs(strategy) / np.sum(np.abs(strategy))
         return self
 
     def copy(self):
-        return copy.deepcopy(self)
+        """
+        Copy constructor for StrategyProfile. Copies content of self to new object.
 
-    def updateWithPureStrategy(self, player, strategy):
-        self._list[player] = [0.0] * self.shape[player]
-        self._list[player][strategy] = 1.0
+        :return: StrategyProfile with same attributes
+        """
+        other = object.__new__(StrategyProfile)
+        other._list = [x.copy() for x in self._list]
+        other.shape = self.shape[:]
+        return other
+
+    def updateWithPureStrategy(self, player, pure_strategy):
+        """
+        Replaces strategy of player with pure_strategy
+
+        :param player: order of player
+        :type player: int
+        :param pure_strategy: order of strategy to be pure
+        :type pure_strategy: int
+        :return: self
+        """
+        self._list[player] = np.zeros_like(self._list[player])
+        self._list[player][pure_strategy] = 1.0
+        return self
 
     def __str__(self):
         result = ''
@@ -97,4 +129,9 @@ class StrategyProfile(object):
         return self._list.__getitem__(item)
 
     def __eq__(self, other):
-        return self._list == other._list
+        if len(self._list) != len(other._list):
+            return False
+        for self_player, other_player in zip(self._list, other._list):
+            if (self_player != other_player).any():
+                return False
+        return True

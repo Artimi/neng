@@ -18,8 +18,13 @@ class NengTestCase(unittest.TestCase):
             for a, b in zip(sp1_pl, sp2_pl):
                 self.assertAlmostEqual(a, b, delta=tol)
 
+    def assertListOfArraysEqual(self, list1, list2):
+        self.assertEqual(len(list1), len(list2), "Lists are not equally long.")
+        for arr1, arr2 in zip(list1, list2):
+            np.testing.assert_array_equal(arr1, arr2)
 
-class Test_strategy_profile(unittest.TestCase):
+
+class Test_strategy_profile(NengTestCase):
     def setUp(self):
         self.flat_profile = [2, 8, 2, 3, 5, 3, 3, 4]
         self.shape = [2, 3, 3]
@@ -29,9 +34,9 @@ class Test_strategy_profile(unittest.TestCase):
         self.assertEqual(self.profile[0][0], self.flat_profile[0])
         self.assertEqual(self.profile[1][1], self.flat_profile[3])
         self.assertEqual(self.profile[2][2], self.flat_profile[7])
-        self.assertEqual(self.profile[0], self.flat_profile[0:2])
-        self.assertEqual(self.profile[1], self.flat_profile[2:5])
-        self.assertEqual(self.profile[2], self.flat_profile[5:8])
+        np.testing.assert_array_equal(self.profile[0], np.array(self.flat_profile[0:2]))
+        np.testing.assert_array_equal(self.profile[1], np.array(self.flat_profile[2:5]))
+        np.testing.assert_array_equal(self.profile[2], np.array(self.flat_profile[5:8]))
 
     @raises(IndexError)
     def test_get_key_fail(self):
@@ -50,7 +55,8 @@ class Test_strategy_profile(unittest.TestCase):
 
     def test_normalize(self):
         a = self.profile.normalize()
-        self.assertEqual([[0.2, 0.8], [0.2, 0.3, 0.5], [0.3, 0.3, 0.4]], a._list)
+        self.assertListOfArraysEqual([np.array([0.2, 0.8]), np.array([0.2, 0.3, 0.5]), np.array([0.3, 0.3, 0.4])],
+                                     a._list)
 
     def test_str(self):
         self.assertEqual(str(self.profile), '2, 8, 2, 3, 5, 3, 3, 4')
@@ -176,5 +182,7 @@ actions:	[7]" { "Player1" "Player2" } { 7 7 }
         self.assertEqual(self.game_two.findEquilibria('pne'), self.game_two_pne)
 
     def test_support_enumeration(self):
-        self.assertListofStrategyProfileAlmostEqual(self.game_seven.findEquilibria('support_enumeration'), self.game_seven_mne)
-        self.assertListofStrategyProfileAlmostEqual(self.game_selten.findEquilibria('support_enumeration'), self.game_selten_mne)
+        self.assertListofStrategyProfileAlmostEqual(self.game_seven.findEquilibria('support_enumeration'),
+                                                    self.game_seven_mne)
+        self.assertListofStrategyProfileAlmostEqual(self.game_selten.findEquilibria('support_enumeration'),
+                                                    self.game_selten_mne)

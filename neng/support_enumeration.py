@@ -86,13 +86,14 @@ class SupportEnumeration(object):
 
         Analogically for result y for player 2 with payoff matrix A
 
-        Args:
-            combination of strategies to make equation set
-            player number of player for who the equation matrix will be done
-            num_supports number of supports for players
-
-        Returns:
-            equation matrix for solving in e.g. np.linalg.solve
+        :param combination: combination of strategies to make equation set
+        :type combination: tuple
+        :param player: order of player for whom the equation will be computed
+        :type player: int
+        :param num_supports: number of supports for player
+        :type num_supports: int
+        :return: equation matrix for solving in np.linalg.solve
+        :rtype: np.array
         """
         row_index = np.zeros(self.game.shape[0], dtype=bool)
         col_index = np.zeros(self.game.shape[1], dtype=bool)
@@ -113,8 +114,8 @@ class SupportEnumeration(object):
         Computes all mixed NE of 2 player noncooperative games.
         If the game is degenerate game.degenerate flag is ticked.
 
-        Returns:
-            set of NE computed by method support enumeration
+        :return: list of NE computed by method support enumeration
+        :rtype: list
         """
         result = []
         # for every numbers of supports
@@ -170,6 +171,9 @@ class SupportEnumeration(object):
 def computeNE(game):
     """
     Function for easy calling SupportEnumeration from other modules.
+
+    :return: result of support enumeration algorithm
+    :rtype: list of StrategyProfile
     """
     se = SupportEnumeration(game)
     return se.supportEnumeration()

@@ -37,11 +37,14 @@ class CMAES(object):
 
     def __init__(self, func, N, sigma=0.3, xmean=None):
         """
-        Args:
-            func (function): function to be minimized
-            N (int): number of parameter of function
-            sigma (float): step size of method
-            xmean (np.array): initial point, if None some is generated
+        :param func: function to be minimized
+        :type func: function
+        :param N: number of parameter of function
+        :type N: int
+        :param sigma: step size of method
+        :type sigma: float
+        :param xmean: initial point, if None some is generated
+        :type xmean: np.array
         """
         self.func = func
         self.N = N
@@ -77,10 +80,12 @@ class CMAES(object):
         Init variables that can change after restart of method, basically that
         are dependent on lamda.
 
-        Args:
-            sigma (float): step size
-            xmean (np.array): initial point
-            lamda_factor (float): factor for multiplying old lamda
+        :param sigma: step size
+        :type sigma: float
+        :param xmean: initial point
+        :type xmean: np.array
+        :param lamda_factor: factor for multyplying old lambda, serves for restarting method
+        :type lamda_factor: float
         """
         self.sigma = sigma
         if xmean is None:
@@ -126,8 +131,8 @@ class CMAES(object):
         """
         Generate new generation of individuals.
 
-        Returns:
-            new generation
+        :rtype: np.array
+        :return: new generation
         """
         self.generation += 1
         self.arz = np.random.randn(self.lamda, self.N)
@@ -138,8 +143,8 @@ class CMAES(object):
         """
         Update values of method from new evaluated generation
 
-        Args:
-            arfitness (np.array): list of func values to individuals
+        :param arfitness: list of function values to individuals
+        :type arfitness: list
         """
         self.counteval += self.lamda
         self.arfitness = arfitness
@@ -193,8 +198,7 @@ class CMAES(object):
         reached or the function is acceptable minimized, iterations ends and
         result is returned.
 
-        Returns:
-            scipy.optimize.Result : result of minimization.
+        :rtype: scipy.optimize.Result
         """
         while self.status != 0 and self.status != 1:
             if self.status > 2:
@@ -211,12 +215,18 @@ class CMAES(object):
         """
         Restart whole method to initial state, but with population multiplied
         by lamda_factor.
+
+        :param lamda_factor: multiply factor
+        :type lamda_factor: int
         """
         self.initVariables(self.store_parameters['sigma'], np.random.rand(self.N), lamda_factor=lamda_factor)
 
     def checkStop(self):
         """
-        Termination criteria of method. They are checked every iteration.
+        Termination criteria of method. They are checked every iteration. If any of them is true, computation should end.
+
+        :return: True if some termination criteria was met, False otherwise
+        :rtype: bool
         """
         i = self.generation % self.N
         self.stop_conditions = (self.arfitness[0] <= self.stopfitness,
@@ -249,7 +259,10 @@ class CMAES(object):
     @property
     def result(self):
         """
-        Result of method. Not returned while minimization is in progress.
+        Result of computation. Not returned while minimization is in progress.
+
+        :return: result of computation
+        :rtype: scipy.optimize.Result
         """
         if self.status < 0:
             raise AttributeError("Result is not ready yet, cmaes is not finished")
@@ -272,6 +285,13 @@ class CMAES(object):
 def fmin(func, N):
     """
     Function for easy call function minimization from other modules.
+
+    :param func: function to be minimized
+    :type func: function
+    :param N: number of parameters of given function
+    :type N: int
+    :return: resulting statistics of computation with result
+    :rtype: scipy.optimize.Result
     """
     c = CMAES(func, N)
     return c.fmin()

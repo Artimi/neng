@@ -284,3 +284,5 @@ epub_copyright = u'2013, Author'
 
 # Allow duplicate toc entries.
 #epub_tocdup = True
+
+autoclass_content = 'both'

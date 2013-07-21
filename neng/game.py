@@ -54,10 +54,10 @@ class Game(object):
         """
         Initialize basic attributes in Game
 
-        Args:
-            nfg (str) string containing the game in nfg format
-            trim ('normalization'|'penalization') method of assuring that
-                strategy profile lies in Delta
+        :param nfg: string containing the game in nfg format
+        :type nfg: str
+        :param trim: method of assuring that strategy profile lies in Delta space,'normalization'|'penalization'
+        :type trim: str
         """
         self.read(nfg)
         self.deltaAssuranceMethod = trim
@@ -71,12 +71,12 @@ class Game(object):
         Computes pure best response strategy profile for given opponent strategy 
         and player
 
-        Args:
-            player (int) player who should respond
-            strategy () opponent strategy
-
-        Returns:
-            set of best response strategies
+        :param player: player who should respond
+        :type player: int
+        :param strategy: opponnet strategy
+        :type strategy: list
+        :return: set of best response strategies
+        :rtype: set of coordinates
         """
         strategy = list(strategy)
         result = set()
@@ -96,8 +96,8 @@ class Game(object):
         """
         Function computes pure Nash equlibria using brute force algorithm.
 
-        Returns:
-            set of strategy profiles that was computed as pure nash equilibria
+        :return: list of StrategyProfile that are pure Nash equilibria
+        :rtype: list
         """
         self.brs = [set() for i in xrange(self.num_players)]
         for player in xrange(self.num_players):
@@ -107,7 +107,7 @@ class Game(object):
             for strategy in np.ndindex(*p_view):
                 # add to list of best responses
                 self.brs[player].update(self.bestResponse(player, strategy))
-            # check degeneration of a game
+                # check degeneration of a game
         self.degenerate = self.isDegenerate()
         # PNE is where all player have best response
         ne_coordinates = set.intersection(*self.brs)
@@ -116,8 +116,8 @@ class Game(object):
 
     def getDominatedStrategies(self):
         """
-        Returns:
-            list of dominated strategies per player
+        :return: list of dominated strategies per player
+        :rtype: list
         """
         empty = [slice(None)] * self.num_players
         result = []
@@ -164,7 +164,7 @@ class Game(object):
                     while original_strategy in self.deleted_strategies[player]:
                         original_strategy += 1
                     self.deleted_strategies[player] = np.append(self.deleted_strategies[player],
-                                                                original_strategy)#strategy + np.sum(self.deleted_strategies[player] <= strategy))
+                                                                original_strategy)
                 self.shape[player] -= len(strategies)
             self.sum_shape = sum(self.shape)
             dominated_strategies = self.getDominatedStrategies()
@@ -176,8 +176,8 @@ class Game(object):
         Degenerate game is defined for two-players games and there can be
         infinite number of mixed Nash equilibria.
 
-        Returns:
-            True|False if game is said as degenerated
+        :return: True if game is said as degenerated
+        :rtype: bool
         """
         if self.num_players != 2:
             return False
@@ -205,11 +205,10 @@ class Game(object):
         Delta (basicaly to have character of probabilities for each player).
         We can assure this with two methods: normalization and penalization.
 
-        Args:
-            strategy_profile list of parameters to function
-
-        Returns:
-            value of LyapunovFunction in given strategy_profile
+        :param strategy_profile_flat: list of parameters to function
+        :type strategy_profile_flat: list
+        :return: value of Lyapunov function in given strategy profile
+        :rtype: float
         """
         v = 0.0
         acc = 0
@@ -237,18 +236,19 @@ class Game(object):
         """
         Function to compute payoff of given strategy_profile.
 
-        Args:
-            strategy_profile list of probability distributions
-            player player for who the payoff is computated
-            pure_strategy if not None player strategy will be replaced by pure_strategy
-
-        Returns:
-            value of payoff
+        :param strategy_profile: strategy profile of all players
+        :type strategy_profile: StrategyProfile
+        :param player: player for whom the payoff is computed
+        :type player: int
+        :param pure_strategy: if not None player strategy will be replaced by pure strategy of that number
+        :type pure_strategy: int
+        :return: value of payoff
+        :rtype: float
         """
         sp = strategy_profile.copy()
         if pure_strategy is not None:
             sp.updateWithPureStrategy(player, pure_strategy)
-        # make product of each probability, returns num_players-dimensional array
+            # make product of each probability, returns num_players-dimensional array
         product = reduce(lambda x, y: np.tensordot(x, y, 0), sp)
         result = np.sum(product * self.array[player])
         return result
@@ -257,11 +257,10 @@ class Game(object):
         """
         Find all equilibria, using method
 
-        Args:
-            method method from Game.METHODS to be used
-
-        Returns:
-            list of NE(list of probabilities), if not found return None
+        :param method: of computing equilibria
+        :type method: str, one of Game.METHODS
+        :return: list of NE, if not found returns None
+        :rtype: list of StrategyProfile
         """
         if method == 'pne':
             result = self.getPNE()
@@ -295,8 +294,8 @@ class Game(object):
         Reads game in .nfg format and stores data to class variables.
         Can read nfg files in outcome and payoff version.
 
-        Args:
-            nfg string with nfg formated game
+        :param nfg: nfg formated game
+        :type nfg: str
         """
         tokens = shlex.split(nfg)
         preface = ["NFG", "1", "R"]
@@ -341,7 +340,7 @@ class Game(object):
                 outcomes.append(
                     map(lambda x: float(x.translate(None, ',')), tokens[brackets_pairs[i][0] + 2:brackets_pairs[i][1]]))
             payoffs = [outcomes[out] for out in map(int, tokens[after_brackets:])]
-        self.sum_shape = np.sum(self.shape)
+        self.sum_shape = sum(self.shape)
         self.array = []
         for player in xrange(self.num_players):
             self.array.append(np.ndarray(self.shape, dtype=float, order="F"))
@@ -357,8 +356,8 @@ class Game(object):
         """
         Output in nfg payoff format.
 
-        Returns:
-            game in nfg payoff format
+        :return: game in nfg payoff format
+        :rtype: str
         """
         result = "NFG 1 R "
         result += "\"" + self.name + "\"\n"
@@ -380,10 +379,14 @@ class Game(object):
         """
         Print Nash equilibria with with some statistics
 
-        Args:
-            nes list of nash equilibria
-            payoff bool flag to print payoff also
-            checkNE bool run test for every printed NE
+        :param nes: list of Nash equilibria
+        :type nes: list of StrategyProfile
+        :param payoff: flag to print payoff of each player
+        :type payoff: bool
+        :param checkNE: run test for every printed NE
+        :type checkNE: bool
+        :return: string to print and information about checking NE
+        :rtype: tuple, (str, bool)
         """
         result = ""
         success = True
@@ -416,11 +419,14 @@ class Game(object):
         check if strategy_profile is really NE. If the payoff will be bigger
         it's not the NE.
 
-        Args:
-            strategy_profile check if is NE
-
-        Returns:
-            True if strategy_profile passed test, False otherwise
+        :param strategy_profile: strategy profile to check
+        :type strategy_profile: StrategyProfile
+        :param num_tests: count of tests to do
+        :type num_tests: int
+        :param accuracy: accuracy of possible difference of results
+        :type accuracy: float
+        :return: True if strategy_profile passed test, False otherwise
+        :rtype: bool
         """
         payoffs = []
         for player in xrange(self.num_players):

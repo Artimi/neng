@@ -30,14 +30,6 @@ neng Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`cmaes` Module
--------------------
-
-.. automodule:: neng.cmaes
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`game` Module
 ------------------
 
@@ -46,6 +38,23 @@ neng Package
     :undoc-members:
     :show-inheritance:
 
+:mod:`strategy_profile` Module
+---------------------------------
+
+.. automodule:: neng.strategy_profile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+ 
+:mod:`cmaes` Module
+-------------------
+
+.. automodule:: neng.cmaes
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 :mod:`support_enumeration` Module
 ---------------------------------
 
@@ -53,3 +62,4 @@ neng Package
     :members:
     :undoc-members:
     :show-inheritance:
+  
