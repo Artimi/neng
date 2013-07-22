@@ -22,7 +22,6 @@
 #SOFTWARE.
 
 from __future__ import division
-import shlex
 from operator import mul
 import sys
 import logging
@@ -33,6 +32,7 @@ import scipy.optimize
 import cmaes
 import support_enumeration
 import strategy_profile as sp
+import game_reader
 
 
 class Game(object):
@@ -59,7 +59,8 @@ class Game(object):
         :param trim: method of assuring that strategy profile lies in Delta space,'normalization'|'penalization'
         :type trim: str
         """
-        self.read(nfg)
+        game_info = game_reader.read(nfg)
+        self.__dict__.update(game_info)
         self.deltaAssuranceMethod = trim
         self.players_zeros = np.zeros(self.num_players)
         self.brs = None
@@ -288,69 +289,6 @@ class Game(object):
             return r
         else:
             return None
-
-    def read(self, nfg):
-        """
-        Reads game in .nfg format and stores data to class variables.
-        Can read nfg files in outcome and payoff version.
-
-        :param nfg: nfg formated game
-        :type nfg: str
-        """
-        tokens = shlex.split(nfg)
-        preface = ["NFG", "1", "R"]
-        if tokens[:3] != preface:
-            raise Exception("Input string is not valid nfg format")
-        self.name = tokens[3]
-        brackets = [i for i, x in enumerate(tokens) if x == "{" or x == "}"]
-        if len(brackets) == 4:
-            # payoff version
-            self.players = tokens[brackets[0] + 1:brackets[1]]
-            self.num_players = len(self.players)
-            self.shape = tokens[brackets[2] + 1:brackets[3]]
-            self.shape = map(int, self.shape)
-            payoffs_flat = tokens[brackets[3] + 1:brackets[3] + 1 +
-                                                  reduce(mul, self.shape) * self.num_players]
-            payoffs_flat = map(float, payoffs_flat)
-            payoffs = []
-            for i in xrange(0, len(payoffs_flat), self.num_players):
-                payoffs.append(payoffs_flat[i:i + self.num_players])
-        else:
-            # outcome verion
-            brackets_pairs = []
-            for i in brackets:
-                if tokens[i] == "{":
-                    brackets_pairs.append([i])
-                if tokens[i] == "}":
-                    pair = -1
-                    while len(brackets_pairs[pair]) != 1:
-                        pair -= 1
-                    brackets_pairs[pair].append(i)
-            self.players = tokens[brackets[0] + 1:brackets[1]]
-            self.num_players = len(self.players)
-            i = 2
-            self.shape = []
-            while brackets_pairs[i][1] < brackets_pairs[1][1]:
-                self.shape.append(brackets_pairs[i][1] - brackets_pairs[i][0] - 1)
-                i += 1
-            after_brackets = brackets_pairs[i][1] + 1
-            i += 1
-            outcomes = [[0] * self.num_players]
-            for i in xrange(i, len(brackets_pairs)):
-                outcomes.append(
-                    map(lambda x: float(x.translate(None, ',')), tokens[brackets_pairs[i][0] + 2:brackets_pairs[i][1]]))
-            payoffs = [outcomes[out] for out in map(int, tokens[after_brackets:])]
-        self.sum_shape = sum(self.shape)
-        self.array = []
-        for player in xrange(self.num_players):
-            self.array.append(np.ndarray(self.shape, dtype=float, order="F"))
-        it = np.nditer(self.array[0], flags=['multi_index', 'refs_ok'])
-        index = 0
-        while not it.finished:
-            for player in xrange(self.num_players):
-                self.array[player][it.multi_index] = payoffs[index][player]
-            it.iternext()
-            index += 1
 
     def __str__(self):
         """
