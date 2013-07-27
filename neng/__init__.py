@@ -27,3 +27,4 @@ U"""
 
 from game import Game
 from strategy_profile import StrategyProfile
+from game_reader import GameReader
