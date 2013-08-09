@@ -97,7 +97,7 @@ class StrategyProfile(object):
         other.shape = self.shape[:]
         return other
 
-    def upateWithPureStrategy(self, player, pure_strategy):
+    def updateWithPureStrategy(self, player, pure_strategy):
         """
         Replaces strategy of player with pure_strategy
 
@@ -110,10 +110,6 @@ class StrategyProfile(object):
         self._list[player] = np.zeros_like(self._list[player])
         self._list[player][pure_strategy] = 1.0
         return self
-
-    def updateWithPureStrategy(self, player, strategy):
-        self._list[player] = [0.0] * self.shape[player]
-        self._list[player][strategy] = 1.0
 
     def __str__(self):
         result = ''
