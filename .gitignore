@@ -34,3 +34,11 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+#vim
+*.swp
+neng/.ropeproject/
+
+#docs
+docs/_build/*
+index.doctree
