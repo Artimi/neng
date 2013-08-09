@@ -58,15 +58,15 @@ class SupportEnumeration(object):
         2 with strategies :math:`i \in I, j \in J`, :math:`v` payoff for player 1
 
         In matrix form (k = num_supports):
-        
+
         .. math::
-        
+
             \begin{pmatrix}
             b_{11} & b_{12} & \cdots & b_{1k} & -1 \\
             b_{21} & b_{22} & \cdots & b_{2k} & -1 \\
             \vdots  & \vdots  & \ddots & \vdots & -1 \\
             b_{k1} & b_{k2} & \cdots & b_{kk} & -1 \\
-            1      &    1   & \cdots &  1     &  0       
+            1      &    1   & \cdots &  1     &  0
             \end{pmatrix}
             \begin{pmatrix}
             x_1 \\

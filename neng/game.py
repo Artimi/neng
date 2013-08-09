@@ -69,7 +69,7 @@ class Game(object):
 
     def bestResponse(self, player, strategy):
         """
-        Computes pure best response strategy profile for given opponent strategy 
+        Computes pure best response strategy profile for given opponent strategy
         and player
 
         :param player: player who should respond
@@ -194,7 +194,7 @@ class Game(object):
     def LyapunovFunction(self, strategy_profile_flat):
         r"""
         Lyapunov function. If LyapunovFunction(p) == 0 then p is NE.
-        
+
         .. math::
 
             x_{ij}(p)           & = u_{i}(si, p_i) \\
