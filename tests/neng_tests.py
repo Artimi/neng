@@ -2,7 +2,7 @@ import unittest
 import os.path
 import itertools
 
-from nose.tools import *
+import nose.tools
 import numpy as np
 
 import neng
@@ -63,7 +63,7 @@ class Test_strategy_profile(NengTestCase):
         np.testing.assert_array_equal(self.profile[1], np.array(self.flat_profile[2:5]))
         np.testing.assert_array_equal(self.profile[2], np.array(self.flat_profile[5:8]))
 
-    @raises(IndexError)
+    @nose.tools.raises(IndexError)
     def test_get_key_fail(self):
         self.profile[3][0]
 
@@ -73,7 +73,7 @@ class Test_strategy_profile(NengTestCase):
         self.profile[1][0] = 0.3
         self.assertEqual(self.profile[1][0], 0.3)
 
-    @raises(IndexError)
+    @nose.tools.raises(IndexError)
     def test_set_fail(self):
         # player 1 has only 2 strategies/options
         self.profile[0] = [3, 3, 3]
@@ -169,6 +169,7 @@ class Test_GameReader(NengTestCase):
 class Test_Game(NengTestCase):
     def setUp(self):
         self.game_selten = neng.Game(SELTEN_STR)
+        self.game_selten_penalization = neng.Game(SELTEN_STR, trim='penalization')
         self.game_selten_str = """NFG 1 R "Selten (IJGT, 75), Figure 2, normal form"
 { "Player 1" "Player 2" } { 3 2 }
 
@@ -177,7 +178,13 @@ class Test_Game(NengTestCase):
         self.game_selten_pne = [neng.StrategyProfile([1.0, 0.0, 0.0, 1.0, 0.0], self.game_selten_shape)]
         self.game_selten_mne = [[1.0, 0.0, 0.0, 1.0, 0.0],
                                 [1.0, 0.0, 0.0, 0.5, 0.5]]
-        self.game_selten_mne = map(lambda x: neng.StrategyProfile(x, self.game_selten_shape), self.game_selten_mne)
+        self.game_selten_mne_profile = map(lambda x: neng.StrategyProfile(x, self.game_selten_shape),
+                                           self.game_selten_mne)
+        self.game_selten_not_mne = [[0.3, 0.5, 0.2, 0.1, 0.9],
+                                    [0.1, 0.9, 0.0, 0.4, 0.6],
+                                    [0.9, 0.1, 0.0, 0.33, 0.66],
+                                    [0.0, 1.0, 0.0, 1.0, 0.0],
+                                    ]
         self.game_selten_brs = {0: {(0, 1): set([(2, 1)]),
                                     (0, 0): set([(0, 0)]),
                                     (2, 1): set([(2, 1)]),
@@ -258,6 +265,27 @@ class Test_Game(NengTestCase):
         self.assertFalse(self.game_seven.isDegenerate())
         self.assertFalse(self.prisoners.isDegenerate())
 
+    def test_LyapunovFunction_normalization(self):
+        # normalization - assert that lf(ne) == 0.0, assert that lf(multiple of ne) == 0.0
+        # assert that not ne > 0.0
+        for ne in self.game_selten_mne:
+            for i in [-1.5, -1, -0.5, 0.5, 0.33, 0.75, 1.0, 2]:
+                modified_ne = [item * i for item in ne]
+                np.testing.assert_almost_equal(self.game_selten.LyapunovFunction(modified_ne), 0.0)
+        for nne in self.game_selten_not_mne:
+            self.assertGreater(self.game_selten.LyapunovFunction(nne), 0.0)
+
+    def test_LyapunovFunction_penalization(self):
+        # penalization - assert that lf(ne) == 0.0, assert that lf(multiple of ne) > 0.0
+        # assert that not ne > 0.0
+        for ne in self.game_selten_mne:
+            np.testing.assert_almost_equal(self.game_selten_penalization.LyapunovFunction(ne), 0.0)
+            for i in [-1.5, -1, -0.5, 0.5, 0.33, 0.75, 2]:
+                modified_ne = [item * i for item in ne]
+                self.assertGreater(self.game_selten_penalization.LyapunovFunction(modified_ne), 0.0)
+        for nne in self.game_selten_not_mne:
+            self.assertGreater(self.game_selten_penalization.LyapunovFunction(nne), 0.0)
+
     def test_str(self):
         self.assertEqual(self.game_selten_str, str(self.game_selten))
         self.assertEqual(self.game_two_str, str(self.game_two))
@@ -266,5 +294,4 @@ class Test_Game(NengTestCase):
         self.assertListofStrategyProfileAlmostEqual(self.game_seven.findEquilibria('support_enumeration'),
                                                     self.game_seven_mne)
         self.assertListofStrategyProfileAlmostEqual(self.game_selten.findEquilibria('support_enumeration'),
-                                                    self.game_selten_mne)
-
+                                                    self.game_selten_mne_profile)
