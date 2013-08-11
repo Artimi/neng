@@ -151,16 +151,10 @@ class SupportEnumeration(object):
                     mne.append(player_strategy_profile)
                     #best response
                 if is_mne:
-                    br = [[], []]
+                    mne_flat = list(mne[0][:]) + list(mne[1][:])
+                    prof = sp.StrategyProfile(mne_flat, self.game.shape)
                     for player in xrange(self.game.num_players):
-                        if player == 0:
-                            oponent_strategy = mne[(player + 1) % 2].reshape(1, self.game.shape[1])
-                        else:
-                            oponent_strategy = mne[(player + 1) % 2].reshape(self.game.shape[0], 1)
-                        payoffs = np.sum(self.game.array[player] * oponent_strategy, axis=(player + 1) % 2)
-                        maximum = np.max(payoffs)
-                        br[player] = tuple(np.where(abs(payoffs - maximum) < 1e-6)[0])
-                        if combination[player][0] not in br[player]:
+                        if not self.game.isMixedBestResponse(player, prof):
                             is_mne = False
                             break
                 if is_mne:

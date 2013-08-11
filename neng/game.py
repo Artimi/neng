@@ -1,25 +1,25 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-#Copyright (C) 2013 Petr Šebek
+# Copyright (C) 2013 Petr Šebek
 
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 
-#The above copyright notice and this permission notice shall be included in
-#all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHERWISE
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHERWISE
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import division
 from operator import mul
@@ -33,12 +33,14 @@ import cmaes
 import support_enumeration
 import strategy_profile as sp
 import game_reader
+from functools import reduce
 
 
 class Game(object):
+
     """
     Class Game wrap around all informations of noncooperative game. Also
-    it provides basic analyzation of game, like bestResponse, if the game
+    it provides basic analyzation of game, like pureBestResponse, if the game
     is degenerate. It also contains an algorithm for iterative elimination
     of strictly dominated strategies and can compute pure Nash equilibria
     using brute force.
@@ -67,7 +69,7 @@ class Game(object):
         self.degenerate = None
         self.deleted_strategies = None
 
-    def bestResponse(self, player, strategy):
+    def pureBestResponse(self, player, strategy):
         """
         Computes pure best response strategy profile for given opponent strategy
         and player
@@ -93,6 +95,29 @@ class Game(object):
             result.add(tuple(s))
         return result
 
+    def isMixedBestResponse(self, player, strategy_profile):
+        """
+        Check if strategy of player from strategy_profile is best response
+        for opponent strategies.
+
+        :param player: player who should respond
+        :type player: int
+        :param strategy_profile: strategy profile
+        :type strategy: StrategyProfile
+        :return: True if strategy_profile[players] is best response
+        :rtype: bool
+        """
+        player_support = np.nonzero(strategy_profile[player])[0]
+        payoffs = np.empty_like(strategy_profile[player])
+        for strategy in xrange(self.shape[player]):
+            payoffs[strategy] = self.payoff(strategy_profile, player, strategy)
+        maximum = np.max(payoffs)
+        br = np.where(np.abs(payoffs - maximum) < 1e-6)[0]
+        if player_support in br:
+            return True
+        else:
+            return False
+
     def getPNE(self):
         """
         Function computes pure Nash equlibria using brute force algorithm.
@@ -107,12 +132,14 @@ class Game(object):
             # get all possible opponent strategy profiles to 'player'
             for strategy in np.ndindex(*p_view):
                 # add to list of best responses
-                self.brs[player].update(self.bestResponse(player, strategy))
+                self.brs[player].update(
+                    self.pureBestResponse(player, strategy))
                 # check degeneration of a game
         self.degenerate = self.isDegenerate()
         # PNE is where all player have best response
         ne_coordinates = set.intersection(*self.brs)
-        result = map(lambda coordinate: sp.StrategyProfile(coordinate, self.shape, coordinate=True), ne_coordinates)
+        result = map(lambda coordinate: sp.StrategyProfile(
+            coordinate, self.shape, coordinate=True), ne_coordinates)
         return result
 
     def getDominatedStrategies(self):
@@ -153,19 +180,23 @@ class Game(object):
         """
         self.init_array = self.array[:]
         self.init_shape = self.shape[:]
-        self.deleted_strategies = [np.array([], dtype=int) for player in xrange(self.num_players)]
+        self.deleted_strategies = [np.array([], dtype=int)
+                                   for player in xrange(self.num_players)]
         dominated_strategies = self.getDominatedStrategies()
         while sum(map(len, dominated_strategies)) != 0:
-            logging.debug("Dominated strategies to delete: {0}".format(dominated_strategies))
+            logging.debug("Dominated strategies to delete: {0}".format(
+                dominated_strategies))
             for player, strategies in enumerate(dominated_strategies):
                 for p in xrange(self.num_players):
-                    self.array[p] = np.delete(self.array[p], strategies, player)
+                    self.array[p] = np.delete(
+                        self.array[p], strategies, player)
                 for strategy in strategies:
                     original_strategy = strategy
                     while original_strategy in self.deleted_strategies[player]:
                         original_strategy += 1
-                    self.deleted_strategies[player] = np.append(self.deleted_strategies[player],
-                                                                original_strategy)
+                    self.deleted_strategies[player] = np.append(
+                        self.deleted_strategies[player],
+                        original_strategy)
                 self.shape[player] -= len(strategies)
             self.sum_shape = sum(self.shape)
             dominated_strategies = self.getDominatedStrategies()
@@ -185,7 +216,8 @@ class Game(object):
         if self.brs is None:
             self.getPNE()
         num_brs = [len(x) for x in self.brs]
-        num_strategies = [reduce(mul, self.shape[:k] + self.shape[(k + 1):]) for k in xrange(self.num_players)]
+        num_strategies = [reduce(mul, self.shape[:k] + self.shape[(k + 1):])
+                          for k in xrange(self.num_players)]
         if num_brs != num_strategies:
             return True
         else:
@@ -213,12 +245,14 @@ class Game(object):
         """
         v = 0.0
         acc = 0
-        strategy_profile = sp.StrategyProfile(strategy_profile_flat, self.shape)
+        strategy_profile = sp.StrategyProfile(
+            strategy_profile_flat, self.shape)
         if self.deltaAssuranceMethod == 'normalization':
             strategy_profile.normalize()
         else:
             strategy_profile_repaired = np.clip(strategy_profile_flat, 0, 1)
-            out_of_box_penalty = np.sum((strategy_profile_flat - strategy_profile_repaired) ** 2)
+            out_of_box_penalty = np.sum((
+                strategy_profile_flat - strategy_profile_repaired) ** 2)
             v += out_of_box_penalty
         for player in range(self.num_players):
             u = self.payoff(strategy_profile, player)
@@ -249,7 +283,8 @@ class Game(object):
         sp = strategy_profile.copy()
         if pure_strategy is not None:
             sp.updateWithPureStrategy(player, pure_strategy)
-        # make product of each probability, returns num_players-dimensional array
+        # make product of each probability, returns num_players-dimensional
+        # array
         product = reduce(lambda x, y: np.tensordot(x, y, 0), sp)
         result = np.sum(product * self.array[player])
         return result
@@ -304,7 +339,8 @@ class Game(object):
         result += " } { "
         result += " ".join(map(str, self.shape))
         result += " }\n\n"
-        it = np.nditer(self.array[0], order='F', flags=['multi_index', 'refs_ok'])
+        it = np.nditer(self.array[
+                       0], order='F', flags=['multi_index', 'refs_ok'])
         payoffs = []
         while not it.finished:
             for player in xrange(self.num_players):
@@ -344,7 +380,8 @@ class Game(object):
             if payoff:
                 s = []
                 for player in xrange(self.num_players):
-                    s.append("{0}: {1:.3f}".format(self.players[player], self.payoff(ne, player)))
+                    s.append("{0}: {1:.3f}".format(self.players[
+                             player], self.payoff(ne, player)))
                 result += "Payoff " + ", ".join(s) + "\n"
             if checkNE:
                 if not self.checkNE(ne):
@@ -410,20 +447,26 @@ All pure Nash equilibria in all games (--method=pne).
 All mixed Nash equilibria in two-players games (--method=support_enumeration).
 One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SLSQP}).
 """)
-    parser.add_argument('-f', '--file', required=True, help="File where game in nfg format is saved.")
-    parser.add_argument('-m', '--method', default='CMAES', choices=Game.METHODS,
-                        help="Method to use for computing Nash equlibria.")
-    parser.add_argument('-e', '--elimination', action='store_true', default=False,
-                        help="Use Iterative Elimination of Strictly Dominated Strategies before computing NE.")
+    parser.add_argument('-f', '--file', required=True,
+                        help="File where game in nfg format is saved.")
+    parser.add_argument(
+        '-m', '--method', default='CMAES', choices=Game.METHODS,
+        help="Method to use for computing Nash equlibria.")
+    parser.add_argument(
+        '-e', '--elimination', action='store_true', default=False,
+        help="Use Iterative Elimination of Strictly Dominated Strategies before computing NE.")
     parser.add_argument('-p', '--payoff', action='store_true', default=False,
                         help="Print also players payoff with each Nash equilibrium.")
     parser.add_argument('-c', '--checkNE', action='store_true', default=False,
                         help="After computation check if found strategy profile is really Nash equilibrium.")
-    parser.add_argument('-t', '--trim', choices=('normalization', 'penalization'), default='normalization',
-                        help="Method for keeping strategy profile in probability distribution universum.")
-    parser.add_argument('-l', '--log', default="WARNING", choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"),
-                        help="Level of logs to save/print")
-    parser.add_argument('--log-file', default=None, help='Log file. If omitted log is printed to stdout.')
+    parser.add_argument(
+        '-t', '--trim', choices=('normalization', 'penalization'), default='normalization',
+        help="Method for keeping strategy profile in probability distribution universum.")
+    parser.add_argument(
+        '-l', '--log', default="WARNING", choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"),
+        help="Level of logs to save/print")
+    parser.add_argument('--log-file', default=None,
+                        help='Log file. If omitted log is printed to stdout.')
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.log.upper(), None),
                         format="%(levelname)s, %(asctime)s, %(message)s", filename=args.log_file)
@@ -437,7 +480,8 @@ One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SL
         g.IESDS()
     result = g.findEquilibria(args.method)
     if result is not None:
-        text, success = g.printNE(result, payoff=args.payoff, checkNE=args.checkNE)
+        text, success = g.printNE(
+            result, payoff=args.payoff, checkNE=args.checkNE)
         if success:
             print text
         else:

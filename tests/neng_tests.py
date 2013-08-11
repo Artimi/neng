@@ -242,7 +242,7 @@ class Test_Game(NengTestCase):
         for player in range(self.game_selten.num_players):
             for coordinate in itertools.product(range(self.game_selten_shape[0]), range(self.game_selten_shape[1])):
                 self.assertEqual(self.game_selten_brs[player][coordinate],
-                                 self.game_selten.bestResponse(player, coordinate))
+                                 self.game_selten.pureBestResponse(player, coordinate))
 
     def test_pne(self):
         self.assertEqual(self.game_selten.findEquilibria('pne'), self.game_selten_pne)
