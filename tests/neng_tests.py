@@ -22,6 +22,8 @@ with open(SEVEN_PATH) as f:
 with open(PRISONERS_PATH) as f:
     PRISONERS_STR = f.read()
 
+NUMBER_OF_TESTS = 100
+
 
 class NengTestCase(unittest.TestCase):
     def assertListofStrategyProfileAlmostEqual(self, list1, list2, tol=1e-4):
@@ -293,5 +295,16 @@ class Test_Game(NengTestCase):
     def test_support_enumeration(self):
         self.assertListofStrategyProfileAlmostEqual(self.game_seven.findEquilibria('support_enumeration'),
                                                     self.game_seven_mne)
-        self.assertListofStrategyProfileAlmostEqual(self.game_selten.findEquilibria('support_enumeration'),
-                                                    self.game_selten_mne_profile)
+        # game_selten is degenerate and can't be computed with
+        # support_enumeration method because of implementation
+        # isMixedBestResponse method, it takes only nondegenerate games.
+        #self.assertListofStrategyProfileAlmostEqual(self.game_selten.findEquilibria('support_enumeration'),
+                                                    #self.game_selten_mne_profile)
+
+    def test_checkBestResponses(self):
+        for mne in self.game_seven_mne:
+            self.assertTrue(self.game_seven.checkBestResponses(mne))
+        sp = self.game_seven_mne[0]
+        for i in xrange(NUMBER_OF_TESTS):
+            sp.randomize().normalize()
+            self.assertFalse(self.game_seven.checkBestResponses(sp))

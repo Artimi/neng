@@ -112,8 +112,8 @@ class Game(object):
         for strategy in xrange(self.shape[player]):
             payoffs[strategy] = self.payoff(strategy_profile, player, strategy)
         maximum = np.max(payoffs)
-        br = np.where(np.abs(payoffs - maximum) < 1e-6)[0]
-        if player_support in br:
+        br = np.where(np.abs(payoffs - maximum) < 1e-4)[0]
+        if np.all(player_support == br):
             return True
         else:
             return False
@@ -429,7 +429,25 @@ class Game(object):
                             current_payoff, payoffs[player] - current_payoff))
                     logging.warning("NE test failed")
                     return False
+            if not self.checkBestResponses(strategy_profile):
+                logging.warning("checkBestResponses test failed.")
+                return False
         logging.info("NE test passed")
+        return True
+
+    def checkBestResponses(self, strategy_profile):
+        """
+        Check if every strategy of strategy profile is best response to other
+        strategies.
+
+        :param strategy_profile: examined strategy profile
+        :type strategy_profile: StrategyProfile
+        :return: whether every strategy is best response to others
+        :rtype: bool
+        """
+        for player in xrange(self.num_players):
+            if not self.isMixedBestResponse(player, strategy_profile):
+                return False
         return True
 
 
