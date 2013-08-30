@@ -97,6 +97,27 @@ class StrategyProfile(object):
         other.shape = self.shape[:]
         return other
 
+    def randomize(self):
+        """
+        Makes strategy of every player random.
+
+        :return: self
+        """
+        for player in xrange(len(self.shape)):
+            self.randomizePlayerStrategy(player)
+        return self
+
+    def randomizePlayerStrategy(self, player):
+        """
+        Makes strategy of player random.
+
+        :param player: player, whos strategy will be randomized
+        :type player: int
+        :return: self
+        """
+        self._list[player] = np.random.rand(self.shape[player])
+        return self
+
     def updateWithPureStrategy(self, player, pure_strategy):
         """
         Replaces strategy of player with pure_strategy

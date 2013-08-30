@@ -419,7 +419,7 @@ class Game(object):
                     logging.warning("NE test failed")
                     return False
             for i in xrange(num_tests):
-                sp[player] = list(np.random.rand(self.shape[player]))
+                sp.randomizePlayerStrategy(player)
                 sp.normalize()
                 current_payoff = self.payoff(sp, player)
                 if (current_payoff - payoffs[player]) > accuracy:
