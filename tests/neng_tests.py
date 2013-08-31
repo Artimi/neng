@@ -26,6 +26,7 @@ NUMBER_OF_TESTS = 100
 
 
 class NengTestCase(unittest.TestCase):
+
     def assertListofStrategyProfileAlmostEqual(self, list1, list2, tol=1e-4):
         self.assertEqual(len(list1), len(list2), "Lists are not equally long.")
         for sp1, sp2 in zip(list1, list2):
@@ -50,8 +51,12 @@ class NengTestCase(unittest.TestCase):
             else:
                 self.assertEqual(d1[key], d2[key])
 
+    def makeListOfSP(self, l, shape):
+        return map(lambda profile: neng.StrategyProfile(profile, shape), l)
+
 
 class Test_strategy_profile(NengTestCase):
+
     def setUp(self):
         self.flat_profile = [0.2, 0.8, 0.2, 0.3, 0.5, 0.3, 0.3, 0.4]
         self.shape = [2, 3, 3]
@@ -61,9 +66,12 @@ class Test_strategy_profile(NengTestCase):
         self.assertEqual(self.profile[0][0], self.flat_profile[0])
         self.assertEqual(self.profile[1][1], self.flat_profile[3])
         self.assertEqual(self.profile[2][2], self.flat_profile[7])
-        np.testing.assert_array_equal(self.profile[0], np.array(self.flat_profile[0:2]))
-        np.testing.assert_array_equal(self.profile[1], np.array(self.flat_profile[2:5]))
-        np.testing.assert_array_equal(self.profile[2], np.array(self.flat_profile[5:8]))
+        np.testing.assert_array_equal(self.profile[
+                                      0], np.array(self.flat_profile[0:2]))
+        np.testing.assert_array_equal(self.profile[
+                                      1], np.array(self.flat_profile[2:5]))
+        np.testing.assert_array_equal(self.profile[
+                                      2], np.array(self.flat_profile[5:8]))
 
     @nose.tools.raises(IndexError)
     def test_get_key_fail(self):
@@ -82,20 +90,25 @@ class Test_strategy_profile(NengTestCase):
 
     def test_coordinate(self):
         coordinate = [0, 1, 2]
-        coordinated_profile = neng.StrategyProfile(coordinate, self.shape, coordinate=True)
+        coordinated_profile = neng.StrategyProfile(
+            coordinate, self.shape, coordinate=True)
         flat_right_profile = [1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
         right_profile = neng.StrategyProfile(flat_right_profile, self.shape)
         self.assertEqual(coordinated_profile, right_profile)
 
     def test_normalize(self):
         denormalized_flat = [0.2, 0.8, 0.2, 0.3, 0.5, 0.3, 0.3, 0.4]
-        denormalized_profile = neng.StrategyProfile(denormalized_flat, self.shape)
+        denormalized_profile = neng.StrategyProfile(
+            denormalized_flat, self.shape)
         a = denormalized_profile.normalize()
-        self.assertListOfArraysEqual([np.array([0.2, 0.8]), np.array([0.2, 0.3, 0.5]), np.array([0.3, 0.3, 0.4])],
-                                     a._list)
+        self.assertListOfArraysEqual(
+            [np.array([0.2, 0.8]), np.array(
+                [0.2, 0.3, 0.5]), np.array([0.3, 0.3, 0.4])],
+            a._list)
 
     def test_str(self):
-        self.assertEqual(str(self.profile), '0.2, 0.8, 0.2, 0.3, 0.5, 0.3, 0.3, 0.4')
+        self.assertEqual(str(
+            self.profile), '0.2, 0.8, 0.2, 0.3, 0.5, 0.3, 0.3, 0.4')
 
     def test_copy(self):
         copy_profile = self.profile.copy()
@@ -112,6 +125,7 @@ class Test_strategy_profile(NengTestCase):
 
 
 class Test_GameReader(NengTestCase):
+
     def setUp(self):
         self.selten_array = [np.array([[1., 1.],
                                        [0., 0.],
@@ -138,12 +152,13 @@ class Test_GameReader(NengTestCase):
                                      [0., 6.]],
                                     [[0., 6.],
                                      [2., 0.]]])]
-        self.two_game = {'name': '2x2x2 Example from McKelvey-McLennan, with 9 Nash equilibria, 2 totally mixed',
-                         'players': ["Player 1", "Player 2", "Player 3"],
-                         'num_players': 3,
-                         'shape': [2, 2, 2],
-                         'sum_shape': 6,
-                         'array': self.two_array}
+        self.two_game = {
+            'name': '2x2x2 Example from McKelvey-McLennan, with 9 Nash equilibria, 2 totally mixed',
+            'players': ["Player 1", "Player 2", "Player 3"],
+            'num_players': 3,
+            'shape': [2, 2, 2],
+            'sum_shape': 6,
+            'array': self.two_array}
 
     def test_readPayoff(self):
         gr = neng.GameReader()
@@ -169,19 +184,22 @@ class Test_GameReader(NengTestCase):
 
 
 class Test_Game(NengTestCase):
+
     def setUp(self):
         self.game_selten = neng.Game(SELTEN_STR)
-        self.game_selten_penalization = neng.Game(SELTEN_STR, trim='penalization')
+        self.game_selten_penalization = neng.Game(
+            SELTEN_STR, trim='penalization')
         self.game_selten_str = """NFG 1 R "Selten (IJGT, 75), Figure 2, normal form"
 { "Player 1" "Player 2" } { 3 2 }
 
 1.0 1.0 0.0 2.0 0.0 2.0 1.0 1.0 0.0 3.0 2.0 0.0"""
         self.game_selten_shape = [3, 2]
-        self.game_selten_pne = [neng.StrategyProfile([1.0, 0.0, 0.0, 1.0, 0.0], self.game_selten_shape)]
+        self.game_selten_pne = [neng.StrategyProfile(
+            [1.0, 0.0, 0.0, 1.0, 0.0], self.game_selten_shape)]
         self.game_selten_mne = [[1.0, 0.0, 0.0, 1.0, 0.0],
                                 [1.0, 0.0, 0.0, 0.5, 0.5]]
-        self.game_selten_mne_profile = map(lambda x: neng.StrategyProfile(x, self.game_selten_shape),
-                                           self.game_selten_mne)
+        self.game_selten_mne_profile = self.makeListOfSP(self.game_selten_mne,
+                                                         self.game_selten_shape)
         self.game_selten_not_mne = [[0.3, 0.5, 0.2, 0.1, 0.9],
                                     [0.1, 0.9, 0.0, 0.4, 0.6],
                                     [0.9, 0.1, 0.0, 0.33, 0.66],
@@ -222,22 +240,47 @@ class Test_Game(NengTestCase):
                              [1.0, 0.0, 1.0, 0.0, 1.0, 0.0],
                              [0.0, 1.0, 1.0, 0.0, 0.0, 1.0],
                              [1.0, 0.0, 0.0, 1.0, 0.0, 1.0]]
-        self.game_two_pne = map(lambda profile: neng.StrategyProfile(profile, self.game_two_shape),
-                                self.game_two_pne)
+        self.game_two_pne = self.makeListOfSP(self.game_two_pne,
+                                              self.game_two_shape)
+        self.game_two_mne = [
+            [1.00000, 0.00000, 1.00000, 0.00000, 1.00000, 0.00000],
+            [1.00000, 0.00000, 0.00000, 1.00000, 0.00000, 1.00000],
+            [0.00000, 1.00000, 0.00000, 1.00000, 1.00000, 0.00000],
+            [0.00000, 1.00000, 1.00000, 0.00000, 0.00000, 1.00000],
+            [0.00000, 1.00000, 0.25000, 0.75000, 0.33333, 0.66667],
+            [0.50000, 0.50000, 0.50000, 0.50000, 1.00000, 0.00000],
+            [0.33333, 0.66667, 1.00000, 0.00000, 0.25000, 0.75000],
+            [0.50000, 0.50000, 0.40000, 0.60000, 0.25000, 0.75000],
+            [0.40000, 0.60000, 0.50000, 0.50000, 0.33333, 0.66667],
+        ]
+        self.game_two_mne = self.makeListOfSP(self.game_two_mne,
+                                              self.game_two_shape)
+        self.game_two_not_mne = [
+            [0.1, 0.9, 0.2, 0.8, 0.9, 0.1],
+            [1.0, 0.0, 0.45, 0.55, 0.22, 0.78],
+            [0.11, 0.89, 1.0, 0.0, 1.0, 0.0]
+        ]
+        self.game_two_not_mne = self.makeListOfSP(self.game_two_not_mne,
+                                                  self.game_two_shape)
         self.game_two_dominated_strategies = [[], [], []]
 
         self.game_seven = neng.Game(SEVEN_STR)
         self.game_seven_shape = [7, 7]
-        self.game_seven_mne = [[0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                               [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                               [0.0, 0.13143631436314362, 0.0, 0.0, 0.0, 0.0, 0.86856368563685649,
-                                0.5818639798488664,
-                                0.41813602015113355, 0.0, 0.0, 0.0, 0.0, 0.0]]
-        self.game_seven_mne = map(lambda x: neng.StrategyProfile(x, self.game_seven_shape), self.game_seven_mne)
+        self.game_seven_mne = [
+            [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+                1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+             0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.13143631436314362, 0.0, 0.0, 0.0, 0.0, 0.86856368563685649,
+             0.5818639798488664,
+             0.41813602015113355, 0.0, 0.0, 0.0, 0.0, 0.0]]
+        self.game_seven_mne = self.makeListOfSP(self.game_seven_mne,
+                                                self.game_seven_shape)
 
         self.prisoners = neng.Game(PRISONERS_STR)
         self.prisoners_dominated_strategies = [[1], [1]]
-        self.prisoners_IESDS_deleted_strategies = [np.array([1]), np.array([1])]
+        self.prisoners_IESDS_deleted_strategies = [
+            np.array([1]), np.array([1])]
         self.prisoners_IESDS_array = [np.array([[-10.]]), np.array([[-10.]])]
 
     def test_bestResponse(self):
@@ -247,17 +290,23 @@ class Test_Game(NengTestCase):
                                  self.game_selten.pureBestResponse(player, coordinate))
 
     def test_pne(self):
-        self.assertEqual(self.game_selten.findEquilibria('pne'), self.game_selten_pne)
-        self.assertEqual(self.game_two.findEquilibria('pne'), self.game_two_pne)
+        self.assertEqual(self.game_selten.findEquilibria(
+            'pne'), self.game_selten_pne)
+        self.assertEqual(self.game_two.findEquilibria(
+            'pne'), self.game_two_pne)
 
     def test_getDominatedStrategies(self):
-        self.assertEqual(self.prisoners.getDominatedStrategies(), self.prisoners_dominated_strategies)
-        self.assertEqual(self.game_two.getDominatedStrategies(), self.game_two_dominated_strategies)
+        self.assertEqual(
+            self.prisoners.getDominatedStrategies(), self.prisoners_dominated_strategies)
+        self.assertEqual(
+            self.game_two.getDominatedStrategies(), self.game_two_dominated_strategies)
 
     def test_IESDS(self):
         self.prisoners.IESDS()
-        self.assertListOfArraysEqual(self.prisoners_IESDS_array, self.prisoners.array)
-        self.assertEqual(self.prisoners_IESDS_deleted_strategies, self.prisoners.deleted_strategies)
+        self.assertListOfArraysEqual(
+            self.prisoners_IESDS_array, self.prisoners.array)
+        self.assertEqual(
+            self.prisoners_IESDS_deleted_strategies, self.prisoners.deleted_strategies)
         self.game_two.IESDS()
         self.assertListOfArraysEqual(self.game_two.array, self.game_two_array)
 
@@ -273,7 +322,8 @@ class Test_Game(NengTestCase):
         for ne in self.game_selten_mne:
             for i in [-1.5, -1, -0.5, 0.5, 0.33, 0.75, 1.0, 2]:
                 modified_ne = [item * i for item in ne]
-                np.testing.assert_almost_equal(self.game_selten.LyapunovFunction(modified_ne), 0.0)
+                np.testing.assert_almost_equal(
+                    self.game_selten.LyapunovFunction(modified_ne), 0.0)
         for nne in self.game_selten_not_mne:
             self.assertGreater(self.game_selten.LyapunovFunction(nne), 0.0)
 
@@ -281,25 +331,29 @@ class Test_Game(NengTestCase):
         # penalization - assert that lf(ne) == 0.0, assert that lf(multiple of ne) > 0.0
         # assert that not ne > 0.0
         for ne in self.game_selten_mne:
-            np.testing.assert_almost_equal(self.game_selten_penalization.LyapunovFunction(ne), 0.0)
+            np.testing.assert_almost_equal(
+                self.game_selten_penalization.LyapunovFunction(ne), 0.0)
             for i in [-1.5, -1, -0.5, 0.5, 0.33, 0.75, 2]:
                 modified_ne = [item * i for item in ne]
-                self.assertGreater(self.game_selten_penalization.LyapunovFunction(modified_ne), 0.0)
+                self.assertGreater(
+                    self.game_selten_penalization.LyapunovFunction(modified_ne), 0.0)
         for nne in self.game_selten_not_mne:
-            self.assertGreater(self.game_selten_penalization.LyapunovFunction(nne), 0.0)
+            self.assertGreater(
+                self.game_selten_penalization.LyapunovFunction(nne), 0.0)
 
     def test_str(self):
         self.assertEqual(self.game_selten_str, str(self.game_selten))
         self.assertEqual(self.game_two_str, str(self.game_two))
 
     def test_support_enumeration(self):
-        self.assertListofStrategyProfileAlmostEqual(self.game_seven.findEquilibria('support_enumeration'),
-                                                    self.game_seven_mne)
+        self.assertListofStrategyProfileAlmostEqual(
+            self.game_seven.findEquilibria('support_enumeration'),
+            self.game_seven_mne)
         # game_selten is degenerate and can't be computed with
         # support_enumeration method because of implementation
         # isMixedBestResponse method, it takes only nondegenerate games.
-        #self.assertListofStrategyProfileAlmostEqual(self.game_selten.findEquilibria('support_enumeration'),
-                                                    #self.game_selten_mne_profile)
+        # self.assertListofStrategyProfileAlmostEqual(self.game_selten.findEquilibria('support_enumeration'),
+                                                    # self.game_selten_mne_profile)
 
     def test_checkBestResponses(self):
         for mne in self.game_seven_mne:
@@ -308,3 +362,9 @@ class Test_Game(NengTestCase):
         for i in xrange(NUMBER_OF_TESTS):
             sp.randomize().normalize()
             self.assertFalse(self.game_seven.checkBestResponses(sp))
+
+    def test_checkNEs(self):
+        self.assertTrue(self.game_seven.checkNEs(self.game_seven_mne))
+        self.assertTrue(self.game_two.checkNEs(self.game_two_pne))
+        self.assertTrue(self.game_two.checkNEs(self.game_two_mne))
+        self.assertFalse(self.game_two.checkNEs(self.game_two_not_mne))
