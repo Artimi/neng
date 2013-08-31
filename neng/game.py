@@ -349,7 +349,7 @@ class Game(object):
         result += " ".join(map(str, payoffs))
         return result
 
-    def printNE(self, nes, payoff=False, checkNE=False):
+    def printNE(self, nes, payoff=False):
         """
         Print Nash equilibria with with some statistics
 
@@ -357,17 +357,15 @@ class Game(object):
         :type nes: list of StrategyProfile
         :param payoff: flag to print payoff of each player
         :type payoff: bool
-        :param checkNE: run test for every printed NE
-        :type checkNE: bool
-        :return: string to print and information about checking NE
-        :rtype: tuple, (str, bool)
+        :return: string to print
+        :rtype: str
         """
         result = ""
-        success = True
         if self.degenerate:
             logging.warning("Game is degenerated")
         for index, ne in enumerate(nes):
-            ne.normalize()
+            ne_copy = ne.copy()
+            ne_copy.normalize()
             # assure that printed result are in same shape as self.init_shape
             if self.deleted_strategies is not None:
                 for player in xrange(self.num_players):
@@ -383,10 +381,7 @@ class Game(object):
                     s.append("{0}: {1:.3f}".format(self.players[
                              player], self.payoff(ne, player)))
                 result += "Payoff " + ", ".join(s) + "\n"
-            if checkNE:
-                if not self.checkNE(ne):
-                    success = False
-        return result, success
+        return result
 
     def checkNE(self, strategy_profile, num_tests=1000, accuracy=1e-4):
         """
@@ -433,6 +428,23 @@ class Game(object):
                 logging.warning("checkBestResponses test failed.")
                 return False
         logging.info("NE test passed")
+        return True
+
+    def checkNEs(self, nes):
+        """
+        Check if given container of strategy profiles contains only Nash
+        equlibria.
+
+        :param nes: container of strategy profiles to examine
+        :type list: iterable of strategy profiles
+        :return: whether every strategy profile pass NE test
+        :rtype: boool
+        """
+        for sp in nes:
+            sp_copy = sp.copy()
+            sp_copy.normalize()
+            if not self.checkNE(sp):
+                return False
         return True
 
     def checkBestResponses(self, strategy_profile):
@@ -498,11 +510,13 @@ One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SL
         g.IESDS()
     result = g.findEquilibria(args.method)
     if result is not None:
-        text, success = g.printNE(
-            result, payoff=args.payoff, checkNE=args.checkNE)
-        if success:
-            print text
+        if args.checkNE:
+            success = g.checkNEs(result)
         else:
-            sys.exit("Nash equilibrium did not pass the test.")
+            success = True
+        if success:
+            print g.printNE(result, payoff=args.payoff)
+        else:
+            sys.exit("Nash equilibria did not pass the test.")
     else:
         sys.exit("Nash equilibrium was not found.")
