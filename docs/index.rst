@@ -3,10 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to neng's documentation!
-================================
+Neng - Nash Equilibrium Non-cooperative games
+=============================================
 
-Contents:
+.. image:: neng.jpg
+   :scale: 50 %
+   :alt: neng logo
+   :align: right
+
+Neng is a tool for computing Nash equilibrium in non-cooperative games (the strategic situation where contestants/players facing each other and not making any alliances). The game is represented by payoffs or outcomes for every combination of actions of every players. Every player has at least two strategies from which he can freely choose.
+
+Nash equilibrium is presenting to us balanced situation, thus situation where no player wants to change his strategy. It's important to tell that it does not tell us when the players has biggest outcomes.
+
 
 .. toctree::
    :maxdepth: 4
@@ -22,18 +30,18 @@ Indices and tables
 neng Package
 ============
 
-:mod:`neng` Package
--------------------
-
-.. automodule:: neng.__init__
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`game` Module
 ------------------
 
 .. automodule:: neng.game
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+:mod:`game_reader` Module
+-------------------------
+
+.. automodule:: neng.game_reader
     :members:
     :undoc-members:
     :show-inheritance:
