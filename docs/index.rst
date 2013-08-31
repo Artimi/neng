@@ -30,6 +30,14 @@ Indices and tables
 neng Package
 ============
 
+:mod: `neng` Module
+-------------------
+
+.. automodule:: neng.neng
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`game` Module
 ------------------
 

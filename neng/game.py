@@ -23,7 +23,6 @@
 
 from __future__ import division
 from operator import mul
-import sys
 import logging
 
 import numpy as np
@@ -461,62 +460,3 @@ class Game(object):
             if not self.isMixedBestResponse(player, strategy_profile):
                 return False
         return True
-
-
-if __name__ == '__main__':
-    import argparse
-    import time
-
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="""
-NenG - Nash Equilibrium Noncooperative Games.
-Tool for computing Nash equilibria in noncooperative games.
-Specifically:
-All pure Nash equilibria in all games (--method=pne).
-All mixed Nash equilibria in two-players games (--method=support_enumeration).
-One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SLSQP}).
-""")
-    parser.add_argument('-f', '--file', required=True,
-                        help="File where game in nfg format is saved.")
-    parser.add_argument(
-        '-m', '--method', default='CMAES', choices=Game.METHODS,
-        help="Method to use for computing Nash equlibria.")
-    parser.add_argument(
-        '-e', '--elimination', action='store_true', default=False,
-        help="Use Iterative Elimination of Strictly Dominated Strategies before computing NE.")
-    parser.add_argument('-p', '--payoff', action='store_true', default=False,
-                        help="Print also players payoff with each Nash equilibrium.")
-    parser.add_argument('-c', '--checkNE', action='store_true', default=False,
-                        help="After computation check if found strategy profile is really Nash equilibrium.")
-    parser.add_argument(
-        '-t', '--trim', choices=('normalization', 'penalization'), default='normalization',
-        help="Method for keeping strategy profile in probability distribution universum.")
-    parser.add_argument(
-        '-l', '--log', default="WARNING", choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"),
-        help="Level of logs to save/print")
-    parser.add_argument('--log-file', default=None,
-                        help='Log file. If omitted log is printed to stdout.')
-    args = parser.parse_args()
-    logging.basicConfig(level=getattr(logging, args.log.upper(), None),
-                        format="%(levelname)s, %(asctime)s, %(message)s", filename=args.log_file)
-
-    with open(args.file) as f:
-        game_str = f.read()
-    start = time.time()
-    g = Game(game_str, args.trim)
-    logging.debug("Reading the game took: {0} s".format(time.time() - start))
-    if args.elimination:
-        g.IESDS()
-    result = g.findEquilibria(args.method)
-    if result is not None:
-        if args.checkNE:
-            success = g.checkNEs(result)
-        else:
-            success = True
-        if success:
-            print g.printNE(result, payoff=args.payoff)
-        else:
-            sys.exit("Nash equilibria did not pass the test.")
-    else:
-        sys.exit("Nash equilibrium was not found.")
