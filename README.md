@@ -47,7 +47,10 @@ optional arguments:
 File format comes from [gambit file formats](http://www.gambit-project.org/doc/formats.html)
 
 ### Python API ###
-You can find API documentation at [here](https://www.stud.fit.vutbr.cz/~xsebek02/neng/)
+You can find current API documentation at [readthedocs](https://neng.readthedocs.org/en/latest/).
+
+### Travis CI ###
+Every commit neng is built and tested using Travis CI. You can see result at [neng travis page](https://travis-ci.org/Artimi/neng).
 
 ## Bachelor thesis ##
 This program result from my [bachelor thesis](https://www.fit.vutbr.cz/study/DP/BP.php?id=15471&y=2012) (in czech). In thesis are described basic math rules of Game theory and algorithms used in the program. It also contains some experiments and testing. But naturally development is moving forward and thesis is becoming obsolete with every commit.

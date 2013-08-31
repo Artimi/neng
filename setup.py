@@ -9,8 +9,8 @@ except ImportError:
 config = {
     'description': 'A tool for computing Nash equilibria',
     'author': 'Petr Šebek',
-    #'url': 'URL to get it at.',
-    #'download_url': 'Where to download it.',
+    'license': 'MIT',
+    'url': 'https://github.com/Artimi/neng',
     'author_email': 'petrsebek1@gmail.com',
     'version': '0.1',
     'install_requires': ['nose', 'numpy', 'scipy'],
