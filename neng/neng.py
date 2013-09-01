@@ -64,14 +64,12 @@ One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SL
     return parser.parse_args()
 
 
-def main(args):
+def main():
     """
     Main method of script. Based on information from arguments executes needed
     commands.
-
-    :param args: output of argument parsing
-    :type args: dict
     """
+    args = parse_args()
     logging.basicConfig(level=getattr(logging, args.log.upper(), None),
                         format="%(levelname)s, %(asctime)s, %(message)s", filename=args.log_file)
     with open(args.file) as f:
@@ -95,5 +93,4 @@ def main(args):
         sys.exit("Nash equilibrium was not found.")
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(args)
+    main()

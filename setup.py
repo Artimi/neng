@@ -13,10 +13,15 @@ config = {
     'url': 'https://github.com/Artimi/neng',
     'author_email': 'petrsebek1@gmail.com',
     'version': '0.1',
-    'install_requires': ['nose', 'numpy', 'scipy'],
+    'install_requires': ['nose', 'numpy'],
     'packages': ['neng'],
     'scripts': [],
-    'name': 'neng'
+    'name': 'neng',
+    'entry_points': {
+        'console_scripts': [
+            'neng = neng.neng:main'
+        ]
+    }
 }
 
 setup(**config)
