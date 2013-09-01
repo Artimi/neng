@@ -14,10 +14,9 @@ This tool serves to computing [Nash equilibrium](http://en.wikipedia.org/wiki/Na
 
 You can invoke the Nash equilibria computing with this parameters:
 ```
-usage: game.py [-h] -f FILE
-               [-m {L-BFGS-B,SLSQP,CMAES,support_enumeration,pne}] [-e] [-p]
-               [-c] [-t {normalization,penalization}]
-               [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--log-file LOG_FILE]
+usage: neng [-h] -f FILE [-m {L-BFGS-B,SLSQP,CMAES,support_enumeration,pne}]
+            [-e] [-p] [-c] [-t {normalization,penalization}]
+            [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [--log-file LOG_FILE]
 
 NenG - Nash Equilibrium Noncooperative Games.
 Tool for computing Nash equilibria in noncooperative games.
@@ -29,7 +28,8 @@ One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SL
 optional arguments:
   -h, --help            show this help message and exit
   -f FILE, --file FILE  File where game in nfg format is saved.
-  -m {L-BFGS-B,SLSQP,CMAES,support_enumeration,pne}, --method {L-BFGS-B,SLSQP,CMAES,support_enumeration,pne}
+  -m {L-BFGS-B,SLSQP,CMAES,support_enumeration,pne},
+        --method {L-BFGS-B,SLSQP,CMAES,support_enumeration,pne}
                         Method to use for computing Nash equlibria.
   -e, --elimination     Use Iterative Elimination of Strictly Dominated
                         Strategies before computing NE.

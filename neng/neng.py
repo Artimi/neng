@@ -38,7 +38,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description="""
-NenG - Nash Equilibrium Noncooperative game.Games.
+NenG - Nash Equilibrium Noncooperative games.
 Tool for computing Nash equilibria in noncooperative games.
 Specifically:
 All pure Nash equilibria in all games (--method=pne).
