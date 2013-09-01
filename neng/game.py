@@ -218,6 +218,7 @@ class Game(object):
         num_strategies = [reduce(mul, self.shape[:k] + self.shape[(k + 1):])
                           for k in xrange(self.num_players)]
         if num_brs != num_strategies:
+            logging.warning("Game is degenerate.")
             return True
         else:
             return False
@@ -359,28 +360,35 @@ class Game(object):
         :return: string to print
         :rtype: str
         """
-        result = ""
-        if self.degenerate:
-            logging.warning("Game is degenerated")
-        for index, ne in enumerate(nes):
-            ne_copy = ne.copy()
-            ne_copy.normalize()
-            # assure that printed result are in same shape as self.init_shape
-            if self.deleted_strategies is not None:
-                for player in xrange(self.num_players):
-                    for deleted_strategy in self.deleted_strategies[player]:
-                        ne[player].insert(deleted_strategy, 0.0)
-                        ne._shape[player] += 1
-            result += "NE " + str(ne)
-            if index != len(nes) - 1:
-                result += '\n'
+        lines = []
+        for ne in nes:
+            ne_copy = ne.copy().normalize()
+            self._addDeletedStrategies(ne_copy)
+            lines.append("NE " + str(ne_copy))
             if payoff:
-                s = []
-                for player in xrange(self.num_players):
-                    s.append("{0}: {1:.3f}".format(self.players[
-                             player], self.payoff(ne, player)))
-                result += "Payoff " + ", ".join(s) + "\n"
-        return result
+                s = [("{0}: {1:.3f}".format(self.players[player],
+                                            self.payoff(ne_copy, player)))
+                     for player in xrange(self.num_players)]
+                lines.append("Payoff> " + ", ".join(s))
+        return "\n".join(lines)
+
+    def _addDeletedStrategies(self, sp):
+        """
+        Assure that strategy profile is in same shape as in the beginning.
+        It could change because of IESDS and deleted strategies. If so add
+        strategies with zero probability.
+
+        :param sp: strategy profile to potentially extend
+        :type sp: StrategyProfile
+        :return: changed strategy profiles
+        :rtype: StrategyProfile
+        """
+        if self.deleted_strategies is not None:
+            for player in xrange(self.num_players):
+                for deleted_strategy in self.deleted_strategies[player]:
+                    sp[player].insert(deleted_strategy, 0.0)
+                    sp._shape[player] += 1
+        return sp
 
     def checkNEs(self, nes):
         """
