@@ -382,53 +382,6 @@ class Game(object):
                 result += "Payoff " + ", ".join(s) + "\n"
         return result
 
-    def checkNE(self, strategy_profile, num_tests=1000, accuracy=1e-4):
-        """
-        Function generates random probability distribution for players and
-        check if strategy_profile is really NE. If the payoff will be bigger
-        it's not the NE.
-
-        :param strategy_profile: strategy profile to check
-        :type strategy_profile: StrategyProfile
-        :param num_tests: count of tests to do
-        :type num_tests: int
-        :param accuracy: accuracy of possible difference of results
-        :type accuracy: float
-        :return: True if strategy_profile passed test, False otherwise
-        :rtype: bool
-        """
-        payoffs = []
-        for player in xrange(self.num_players):
-            payoffs.append(self.payoff(strategy_profile, player))
-        for player in xrange(self.num_players):
-            sp = strategy_profile.copy()
-            for strategy in xrange(self.shape[player]):
-                sp.updateWithPureStrategy(player, strategy)
-                current_payoff = self.payoff(sp, player)
-                if (current_payoff - payoffs[player]) > accuracy:
-                    logging.warning(
-                        'Player {0} has better payoff with {1}, previous payoff {2}, current payoff {3}, difference {4}. '.format(
-                            player, sp[player], payoffs[player],
-                            current_payoff, payoffs[player] - current_payoff))
-                    logging.warning("NE test failed")
-                    return False
-            for i in xrange(num_tests):
-                sp.randomizePlayerStrategy(player)
-                sp.normalize()
-                current_payoff = self.payoff(sp, player)
-                if (current_payoff - payoffs[player]) > accuracy:
-                    logging.warning(
-                        'Player {0} has better payoff with {1}, previous payoff {2}, current payoff {3}, difference {4}. '.format(
-                            player, sp[player], payoffs[player],
-                            current_payoff, payoffs[player] - current_payoff))
-                    logging.warning("NE test failed")
-                    return False
-            if not self.checkBestResponses(strategy_profile):
-                logging.warning("checkBestResponses test failed.")
-                return False
-        logging.info("NE test passed")
-        return True
-
     def checkNEs(self, nes):
         """
         Check if given container of strategy profiles contains only Nash
@@ -439,12 +392,15 @@ class Game(object):
         :return: whether every strategy profile pass NE test
         :rtype: boool
         """
+        result = True
         for sp in nes:
-            sp_copy = sp.copy()
-            sp_copy.normalize()
-            if not self.checkNE(sp):
-                return False
-        return True
+            sp_copy = sp.copy().normalize()
+            if not self.checkBestResponses(sp_copy):
+                result = False
+                logging.warning('Strategy profile {0} is not a Nash equilibrium.'.format(sp_copy))
+        if result:
+            logging.info("Nash equilibrium test passed for all strategy profiles.")
+        return result
 
     def checkBestResponses(self, strategy_profile):
         """
