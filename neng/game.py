@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 from __future__ import division
+from __future__ import unicode_literals
 from operator import mul
 import logging
 

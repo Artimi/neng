@@ -21,6 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import unicode_literals
 import shlex
 from operator import mul
 import os.path
@@ -130,7 +131,7 @@ class GameReader(object):
         outcomes = [[0] * self.game['num_players']]
         for i in xrange(i, len(brackets_pairs)):
             outcomes.append(
-                map(lambda x: float(x.translate(None, ',')),
+                map(lambda x: float(x.replace(',', '')),
                     self.tokens[brackets_pairs[i][0] + 2:brackets_pairs[i][1]]))
         self.payoffs = [outcomes[out]
                         for out in map(int, self.tokens[after_brackets:])]

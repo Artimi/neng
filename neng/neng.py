@@ -21,6 +21,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import print_function
+from __future__ import unicode_literals
 import argparse
 import time
 import game
@@ -86,7 +88,7 @@ def main():
         else:
             success = True
         if success:
-            print g.printNE(result, payoff=args.payoff)
+            print(g.printNE(result, payoff=args.payoff))
         else:
             sys.exit("Nash equilibria did not pass the test.")
     else:
