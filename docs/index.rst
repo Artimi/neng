@@ -30,7 +30,7 @@ Indices and tables
 neng Package
 ============
 
-:mod: `neng` Module
+:mod:`neng` Module
 -------------------
 
 .. automodule:: neng.neng
@@ -79,3 +79,10 @@ neng Package
     :undoc-members:
     :show-inheritance:
   
+:mod:`extensive_tree` Module
+-----------------------------
+
+.. automodule:: neng.extensive_tree
+    :members:
+    :undoc-members:
+    :show-inheritance:

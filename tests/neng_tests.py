@@ -184,6 +184,51 @@ class Test_GameReader(NengTestCase):
         self.assertDictsWithArraysEqual(resultFile, resultStr)
 
 
+class Test_ExtensiveTree(NengTestCase):
+    def setUp(self):
+        self.root = neng.ExtensiveTreeNode("root", 0, [0, 0])
+        self.tree = neng.ExtensiveTree("Game Name", ["Player 1", "Player 2"],
+                                       self.root)
+
+    def test_root(self):
+        self.assertEqual(self.tree.root, self.root)
+
+    def test_repr(self):
+        self.assertEqual(repr(self.tree), "Game Name: [Player 1, Player 2]")
+
+
+class Test_ExtensiveTreeNode(NengTestCase):
+    def setUp(self):
+        self.root = neng.ExtensiveTreeNode("root", 0, [0, 0])
+        self.child = neng.ExtensiveTreeNode("child", 0, [0, 0])
+        self.child_name = neng.ExtensiveTreeNode("child_name", 1,
+                                                 [12.0, 10.0],
+                                                 "Outcome 1")
+
+    def test_add_child(self):
+        self.root.add_child(self.child)
+        self.assertTrue(self.child in self.root)
+
+    def test_parent(self):
+        self.root.add_child(self.child)
+        self.assertEqual(self.child.parent, self.root)
+
+    def test_repr(self):
+        self.assertEqual(repr(self.root), "root: #0, [0, 0]")
+        self.assertEqual(repr(self.child_name),
+                         "child_name: Outcome 1#1, [12.0, 10.0]")
+
+
+class Test_ExtensiveTreePersonNode(NengTestCase):
+    def setUp(self):
+        self.person_node = neng.ExtensiveTreePersonNode("person_node", 0, 0,
+                                                        1, 1)
+
+    def test_repr(self):
+        self.assertEqual(repr(self.person_node),
+                         "person_node: player: 1, information_set: 1")
+
+
 class Test_Game(NengTestCase):
 
     def setUp(self):

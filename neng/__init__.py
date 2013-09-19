@@ -28,3 +28,6 @@ U"""
 from game import Game
 from strategy_profile import StrategyProfile
 from game_reader import GameReader
+from extensive_tree import ExtensiveTree
+from extensive_tree import ExtensiveTreeNode
+from extensive_tree import ExtensiveTreePersonNode
