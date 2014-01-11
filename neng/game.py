@@ -31,6 +31,7 @@ import scipy.optimize
 
 import cmaes
 import support_enumeration
+import epsilon_ne
 import strategy_profile as sp
 import game_reader
 from functools import reduce
@@ -50,7 +51,7 @@ class Game(object):
         >>> ne = g.findEquilibria(method='pne')
         >>> print g.printNE(ne)
     """
-    METHODS = ['L-BFGS-B', 'SLSQP', 'CMAES', 'support_enumeration', 'pne']
+    METHODS = ['L-BFGS-B', 'SLSQP', 'CMAES', 'support_enumeration', 'pne', '0.5-epsilon']
 
     def __init__(self, nfg, trim='normalization'):
         """
@@ -94,6 +95,23 @@ class Game(object):
             # made whole strategy profile, not just one strategy
             result.add(tuple(s))
         return result
+
+    def pureBestResponseTwoPlayers(self, player, strategy):
+        """
+        Computes pure best response strategy profile for given opponent strategy
+        and player
+
+        :param player: player who should respond
+        :type player: int
+        :param strategy: opponnet strategy
+        :type strategy: int
+        :return: set of best response strategies
+        :rtype: set of coordinates
+        """
+        profile = [0, 0]
+        opponent = (player + 1) % 2
+        profile[opponent] = strategy
+        return self.pureBestResponse(player, profile)
 
     def isMixedBestResponse(self, player, strategy_profile):
         """
@@ -308,6 +326,13 @@ class Game(object):
         elif self.num_players == 2 and method == 'support_enumeration':
             result = support_enumeration.computeNE(self)
             self.degenerate = self.isDegenerate()
+            if len(result) == 0:
+                return None
+            else:
+                return result
+        elif method.endswith('epsilon'):
+            quotient = method[:method.index('-')]
+            result = epsilon_ne.compute(self, quotient)
             if len(result) == 0:
                 return None
             else:

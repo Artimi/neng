@@ -33,6 +33,23 @@ class NengTestCase(unittest.TestCase):
         for sp1, sp2 in zip(list1, list2):
             self.assertStrategyProfileAlmostEqual(sp1, sp2, tol)
 
+    def assertListofStrategyProfileSameValues(self, list1, list2):
+        self.assertEqual(len(list1), len(list2), "Lists are not equally long.")
+        for sp1 in list1:
+            found = False
+            for sp2 in list2:
+                if sp1 == sp2:
+                    found = True
+            if not found:
+                raise AssertionError("{0} was not found in second list.".format(sp1))
+        for sp2 in list2:
+            found = False
+            for sp1 in list1:
+                if sp1 == sp2:
+                    found = True
+            if not found:
+                raise AssertionError("{0} was not found in first list.".format(sp2))
+
     def assertStrategyProfileAlmostEqual(self, sp1, sp2, tol=1e-4):
         self.assertListEqual(sp1.shape, sp2.shape, "Shape is not equal")
         for sp1_pl, sp2_pl in zip(sp1._list, sp2._list):
@@ -43,6 +60,7 @@ class NengTestCase(unittest.TestCase):
         self.assertEqual(len(list1), len(list2), "Lists are not equally long.")
         for arr1, arr2 in zip(list1, list2):
             np.testing.assert_array_equal(arr1, arr2)
+
 
     def assertDictsWithArraysEqual(self, d1, d2):
         self.assertEqual(set(d1.keys()), set(d2.keys()))
@@ -123,6 +141,12 @@ class Test_strategy_profile(NengTestCase):
         updated_profile = neng.StrategyProfile(updated_flat, self.shape)
         self.profile.updateWithPureStrategy(0, 0)
         self.assertEqual(updated_profile, self.profile)
+
+    def test_equalInSet(self):
+        sp1 = neng.StrategyProfile([1.0, 0.0, 1.0, 0.0], [2, 2])
+        sp2 = neng.StrategyProfile([1.0, 0.0, 1.0, 0.0], [2, 2])
+        s = set([sp1, sp2])
+        self.assertEqual(len(s), 1)
 
 
 class Test_GameReader(NengTestCase):
@@ -369,3 +393,16 @@ class Test_Game(NengTestCase):
         self.assertTrue(self.game_two.checkNEs(self.game_two_pne))
         self.assertTrue(self.game_two.checkNEs(self.game_two_mne))
         self.assertFalse(self.game_two.checkNEs(self.game_two_not_mne))
+
+class Test_EpsilonNE(NengTestCase):
+    def setUp(self):
+        self.prisoners = neng.Game(PRISONERS_STR)
+        self.prisoners_05ne = [[0.5, 0.5, 1.0, 0.0],
+                                [1.0, 0.0, 0.5, 0.5],
+                                [1.0, 0.0, 1.0, 0.0]]
+        self.prisoners_05ne = self.makeListOfSP(self.prisoners_05ne,
+                                                self.prisoners.shape)
+
+    def test_05epsilon(self):
+        result = self.prisoners.findEquilibria('0.5-epsilon')
+        self.assertListofStrategyProfileSameValues(result, self.prisoners_05ne)

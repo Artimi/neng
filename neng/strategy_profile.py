@@ -41,12 +41,27 @@ class StrategyProfile(object):
         :param coordinate: if True, then profile is considered as coordinate in game universum (depict pure strategy profile)
         :type coordinate: bool
         """
+        if profile is None:
+            profile = [0.0] * sum(shape)
+            coordinate = False
         self.shape = shape
         self._list = []
         if coordinate:
             self._coordinateToDeep(profile)
         else:
             self._flatToDeep(profile)
+
+    def updateWithList(self, player, l):
+        """
+        Updates empty sp with values from dictionary
+
+        :param player: player to be updated
+        :type player: int
+        :param dictionary: dict with number_strategy: value
+        :type dictionary: dict
+        """
+        for strategy, value in l:
+            self[player][strategy] += value
 
     def _coordinateToDeep(self, coordinate):
         """
@@ -159,3 +174,6 @@ class StrategyProfile(object):
             if (self_player != other_player).any():
                 return False
         return True
+
+    def __hash__(self):
+        return hash(self.__repr__())
