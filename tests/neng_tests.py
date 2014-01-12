@@ -61,7 +61,6 @@ class NengTestCase(unittest.TestCase):
         for arr1, arr2 in zip(list1, list2):
             np.testing.assert_array_equal(arr1, arr2)
 
-
     def assertDictsWithArraysEqual(self, d1, d2):
         self.assertEqual(set(d1.keys()), set(d2.keys()))
         for key in d1.keys():
@@ -307,6 +306,8 @@ class Test_Game(NengTestCase):
         self.prisoners_IESDS_deleted_strategies = [
             np.array([1]), np.array([1])]
         self.prisoners_IESDS_array = [np.array([[-10.]]), np.array([[-10.]])]
+        self.prisoners_normalize = [np.array([[0.5, 1.0], [0.0, 0.95]]),
+                                    np.array([[0.5, 0.0], [1.0, 0.95]])]
 
     def test_bestResponse(self):
         for player in range(self.game_selten.num_players):
@@ -394,12 +395,18 @@ class Test_Game(NengTestCase):
         self.assertTrue(self.game_two.checkNEs(self.game_two_mne))
         self.assertFalse(self.game_two.checkNEs(self.game_two_not_mne))
 
+    def test_normalize(self):
+        self.prisoners.normalize()
+        self.assertListOfArraysEqual(self.prisoners.array,
+                                     self.prisoners_normalize)
+
+
 class Test_EpsilonNE(NengTestCase):
     def setUp(self):
         self.prisoners = neng.Game(PRISONERS_STR)
         self.prisoners_05ne = [[0.5, 0.5, 1.0, 0.0],
-                                [1.0, 0.0, 0.5, 0.5],
-                                [1.0, 0.0, 1.0, 0.0]]
+                               [1.0, 0.0, 0.5, 0.5],
+                               [1.0, 0.0, 1.0, 0.0]]
         self.prisoners_05ne = self.makeListOfSP(self.prisoners_05ne,
                                                 self.prisoners.shape)
 

@@ -64,11 +64,23 @@ class Game(object):
         """
         game_info = game_reader.read(nfg)
         self.__dict__.update(game_info)
+        self.init_array = self.array[:]
+        self.init_shape = self.shape[:]
         self.deltaAssuranceMethod = trim
         self.players_zeros = np.zeros(self.num_players)
         self.brs = None
         self.degenerate = None
         self.deleted_strategies = None
+
+    def normalize(self):
+        """
+        Normalize payoff matrices to contain only value from <0, 1>.
+        Original matrices save to init_array.
+        """
+        for index, matrix in enumerate(self.array):
+            minimum = np.amin(matrix)
+            maximum = np.amax(matrix)
+            self.array[index] = (matrix - minimum) / (maximum - minimum)
 
     def pureBestResponse(self, player, strategy):
         """
@@ -191,13 +203,11 @@ class Game(object):
         """
         Iterative elimination of strictly dominated strategies.
 
-        Eliminates all strict dominated strategies, preserve self.array and
-        self.shape in self.init_array and self.init_shape. Stores numbers of
-        deleted strategies in self.deleted_strategies. Deletes strategies
+        Eliminates all strict dominated strategies, self.array and self.shape
+        is preserved in self.init_array and self.init_shape.  Stores numbers
+        of deleted strategies in self.deleted_strategies. Deletes strategies
         from self.array and updates self.shape.
         """
-        self.init_array = self.array[:]
-        self.init_shape = self.shape[:]
         self.deleted_strategies = [np.array([], dtype=int)
                                    for player in xrange(self.num_players)]
         dominated_strategies = self.getDominatedStrategies()
@@ -288,7 +298,8 @@ class Game(object):
 
     def payoff(self, strategy_profile, player, pure_strategy=None):
         """
-        Function to compute payoff of given strategy_profile.
+        Function to compute payoff of given strategy_profile. Compute payoff
+        from original payoff matrices not changed.
 
         :param strategy_profile: strategy profile of all players
         :type strategy_profile: StrategyProfile
@@ -305,7 +316,7 @@ class Game(object):
         # make product of each probability, returns num_players-dimensional
         # array
         product = reduce(lambda x, y: np.tensordot(x, y, 0), sp)
-        result = np.sum(product * self.array[player])
+        result = np.sum(product * self.init_array[player])
         return result
 
     def findEquilibria(self, method='CMAES'):
@@ -365,12 +376,12 @@ class Game(object):
         result += " } { "
         result += " ".join(map(str, self.shape))
         result += " }\n\n"
-        it = np.nditer(self.array[
+        it = np.nditer(self.init_array[
                        0], order='F', flags=['multi_index', 'refs_ok'])
         payoffs = []
         while not it.finished:
             for player in xrange(self.num_players):
-                payoffs.append(self.array[player][it.multi_index])
+                payoffs.append(self.init_array[player][it.multi_index])
             it.iternext()
         result += " ".join(map(str, payoffs))
         return result
