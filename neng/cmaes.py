@@ -198,7 +198,7 @@ class CMAES(object):
         reached or the function is acceptable minimized, iterations ends and
         result is returned.
 
-        :rtype: scipy.optimize.Result
+        :rtype: scipy.optimize.OptimizeResult
         """
         while self.status != 0 and self.status != 1:
             if self.status > 2:
@@ -262,12 +262,12 @@ class CMAES(object):
         Result of computation. Not returned while minimization is in progress.
 
         :return: result of computation
-        :rtype: scipy.optimize.Result
+        :rtype: scipy.optimize.OptimizeResult
         """
         if self.status < 0:
             raise AttributeError("Result is not ready yet, cmaes is not finished")
         else:
-            self._result = scipy.optimize.Result()
+            self._result = scipy.optimize.OptimizeResult()
             self._result['x'] = self.arx[self.arindex[0]]
             self._result['fun'] = self.arfitness[0]
             self._result['nfev'] = self.counteval
@@ -291,7 +291,7 @@ def fmin(func, N):
     :param N: number of parameters of given function
     :type N: int
     :return: resulting statistics of computation with result
-    :rtype: scipy.optimize.Result
+    :rtype: scipy.optimize.OptimizeResult
     """
     c = CMAES(func, N)
     return c.fmin()
