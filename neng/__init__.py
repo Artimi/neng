@@ -21,10 +21,10 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-U"""
+"""
 .. moduleauthor:: Petr Šebek <petrsebek1@gmail.com>
 """
 
-from game import Game
-from strategy_profile import StrategyProfile
-from game_reader import GameReader
+from .game import Game
+from .strategy_profile import StrategyProfile
+from .game_reader import GameReader

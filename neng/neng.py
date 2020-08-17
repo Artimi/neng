@@ -23,7 +23,7 @@
 
 import argparse
 import time
-import game
+from . import game
 import logging
 import sys
 
@@ -86,7 +86,7 @@ def main():
         else:
             success = True
         if success:
-            print g.printNE(result, payoff=args.payoff)
+            print(g.printNE(result, payoff=args.payoff))
         else:
             sys.exit("Nash equilibria did not pass the test.")
     else:

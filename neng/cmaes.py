@@ -21,7 +21,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-from __future__ import division
+
 import collections
 import logging
 
@@ -206,7 +206,7 @@ class CMAES(object):
                 self.restart(2)
             pop = self.newGeneration()
             values = np.empty(pop.shape[0])
-            for i in xrange(pop.shape[0]):
+            for i in range(pop.shape[0]):
                 values[i] = self.func(pop[i])
             self.update(values)
         return self.result
@@ -253,7 +253,7 @@ class CMAES(object):
         """
         logging.debug(
             "generation: {generation:<5}, v: {v_function:<6.2e}, sigma: {sigma:.2e}, best: {best}, xmean: {xmean}".format(
-                generation=self.generation, best=map(lambda x: round(x, 8), self.arx[self.arindex[0]]),
+                generation=self.generation, best=[round(x, 8) for x in self.arx[self.arindex[0]]],
                 v_function=self.arfitness[0], sigma=self.sigma, xmean=self.xmean))
 
     @property
@@ -295,4 +295,3 @@ def fmin(func, N):
     """
     c = CMAES(func, N)
     return c.fmin()
-

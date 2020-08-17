@@ -26,7 +26,7 @@ import itertools
 
 import numpy as np
 
-import strategy_profile as sp
+from . import strategy_profile as sp
 
 
 class SupportEnumeration(object):
@@ -119,21 +119,21 @@ class SupportEnumeration(object):
         """
         result = []
         # for every numbers of supports
-        for num_supports in xrange(1, min(self.game.shape) + 1):
+        for num_supports in range(1, min(self.game.shape) + 1):
             logging.debug("Support enumearation for num_supports: {0}".format(num_supports))
             supports = []
             equal = [0] * num_supports
             equal.append(1)
             # all combinations of support length num_supports
-            for player in xrange(self.game.num_players):
+            for player in range(self.game.num_players):
                 supports.append(itertools.combinations(
-                    xrange(self.game.shape[player]), num_supports))
+                    range(self.game.shape[player]), num_supports))
                 # cartesian product of combinations of both player
             for combination in itertools.product(supports[0], supports[1]):
                 mne = []
                 is_mne = True
                 # for both player compute set of equations
-                for player in xrange(self.game.num_players):
+                for player in range(self.game.num_players):
                     equations = self.getEquationSet(combination, player,
                                                     num_supports)
                     try:
@@ -153,7 +153,7 @@ class SupportEnumeration(object):
                 if is_mne:
                     mne_flat = list(mne[0][:]) + list(mne[1][:])
                     prof = sp.StrategyProfile(mne_flat, self.game.shape)
-                    for player in xrange(self.game.num_players):
+                    for player in range(self.game.num_players):
                         if not self.game.isMixedBestResponse(player, prof):
                             is_mne = False
                             break
