@@ -21,17 +21,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import division
+
 from operator import mul
 import logging
 
 import numpy as np
 import scipy.optimize
 
-import cmaes
-import support_enumeration
-import strategy_profile as sp
-import game_reader
+from . import cmaes
+from . import support_enumeration
+from . import strategy_profile as sp
+from . import game_reader
 from functools import reduce
 
 
@@ -108,7 +108,7 @@ class Game(object):
         """
         player_support = np.nonzero(strategy_profile[player])[0]
         payoffs = np.empty_like(strategy_profile[player])
-        for strategy in xrange(self.shape[player]):
+        for strategy in range(self.shape[player]):
             payoffs[strategy] = self.payoff(strategy_profile, player, strategy)
         maximum = np.max(payoffs)
         br = np.where(np.abs(payoffs - maximum) < 1e-4)[0]
@@ -124,8 +124,8 @@ class Game(object):
         :return: list of StrategyProfile that are pure Nash equilibria
         :rtype: list
         """
-        self.brs = [set() for i in xrange(self.num_players)]
-        for player in xrange(self.num_players):
+        self.brs = [set() for i in range(self.num_players)]
+        for player in range(self.num_players):
             p_view = self.shape[:]
             p_view[player] = 1
             # get all possible opponent strategy profiles to 'player'
@@ -137,8 +137,8 @@ class Game(object):
         self.degenerate = self.isDegenerate()
         # PNE is where all player have best response
         ne_coordinates = set.intersection(*self.brs)
-        result = map(lambda coordinate: sp.StrategyProfile(
-            coordinate, self.shape, coordinate=True), ne_coordinates)
+        result = [sp.StrategyProfile(
+            coordinate, self.shape, coordinate=True) for coordinate in ne_coordinates]
         return result
 
     def getDominatedStrategies(self):
@@ -148,16 +148,16 @@ class Game(object):
         """
         empty = [slice(None)] * self.num_players
         result = []
-        for player in xrange(self.num_players):
+        for player in range(self.num_players):
             s1 = empty[:]
             strategies = []
             dominated_strategies = []
-            for strategy in xrange(self.shape[player]):
+            for strategy in range(self.shape[player]):
                 s1[player] = strategy
                 strategies.append(self.array[player][s1])
-            for strategy in xrange(self.shape[player]):
+            for strategy in range(self.shape[player]):
                 dominated = False
-                for strategy2 in xrange(self.shape[player]):
+                for strategy2 in range(self.shape[player]):
                     if strategy == strategy2:
                         continue
                     elif (strategies[strategy] < strategies[strategy2]).all():
@@ -180,13 +180,13 @@ class Game(object):
         self.init_array = self.array[:]
         self.init_shape = self.shape[:]
         self.deleted_strategies = [np.array([], dtype=int)
-                                   for player in xrange(self.num_players)]
+                                   for player in range(self.num_players)]
         dominated_strategies = self.getDominatedStrategies()
         while sum(map(len, dominated_strategies)) != 0:
             logging.debug("Dominated strategies to delete: {0}".format(
                 dominated_strategies))
             for player, strategies in enumerate(dominated_strategies):
-                for p in xrange(self.num_players):
+                for p in range(self.num_players):
                     self.array[p] = np.delete(
                         self.array[p], strategies, player)
                 for strategy in strategies:
@@ -199,7 +199,7 @@ class Game(object):
                 self.shape[player] -= len(strategies)
             self.sum_shape = sum(self.shape)
             dominated_strategies = self.getDominatedStrategies()
-        for player in xrange(self.num_players):
+        for player in range(self.num_players):
             self.deleted_strategies[player].sort()
 
     def isDegenerate(self):
@@ -216,7 +216,7 @@ class Game(object):
             self.getPNE()
         num_brs = [len(x) for x in self.brs]
         num_strategies = [reduce(mul, self.shape[:k] + self.shape[(k + 1):])
-                          for k in xrange(self.num_players)]
+                          for k in range(self.num_players)]
         if num_brs != num_strategies:
             logging.warning("Game is degenerate.")
             return True
@@ -335,7 +335,7 @@ class Game(object):
         result = "NFG 1 R "
         result += "\"" + self.name + "\"\n"
         result += "{ "
-        result += " ".join(map(lambda x: "\"" + x + "\"", self.players))
+        result += " ".join(["\"" + x + "\"" for x in self.players])
         result += " } { "
         result += " ".join(map(str, self.shape))
         result += " }\n\n"
@@ -343,7 +343,7 @@ class Game(object):
                        0], order='F', flags=['multi_index', 'refs_ok'])
         payoffs = []
         while not it.finished:
-            for player in xrange(self.num_players):
+            for player in range(self.num_players):
                 payoffs.append(self.array[player][it.multi_index])
             it.iternext()
         result += " ".join(map(str, payoffs))
@@ -368,7 +368,7 @@ class Game(object):
             if payoff:
                 s = [("{0}: {1:.3f}".format(self.players[player],
                                             self.payoff(ne_copy, player)))
-                     for player in xrange(self.num_players)]
+                     for player in range(self.num_players)]
                 lines.append("Payoff> " + ", ".join(s))
         return "\n".join(lines)
 
@@ -384,7 +384,7 @@ class Game(object):
         :rtype: StrategyProfile
         """
         if self.deleted_strategies is not None:
-            for player in xrange(self.num_players):
+            for player in range(self.num_players):
                 for deleted_strategy in self.deleted_strategies[player]:
                     sp[player].insert(deleted_strategy, 0.0)
                     sp._shape[player] += 1
@@ -420,7 +420,7 @@ class Game(object):
         :return: whether every strategy is best response to others
         :rtype: bool
         """
-        for player in xrange(self.num_players):
+        for player in range(self.num_players):
             if not self.isMixedBestResponse(player, strategy_profile):
                 return False
         return True

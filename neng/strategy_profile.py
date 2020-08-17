@@ -21,7 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import division
+
 import numpy as np
 
 
@@ -54,7 +54,7 @@ class StrategyProfile(object):
         :param coordinate: list of numbers to convert
         :type coordinate: list
         """
-        for player in xrange(len(self.shape)):
+        for player in range(len(self.shape)):
             self._list.append(np.zeros(self.shape[player]))
             self._list[player][coordinate[player]] = 1.0
 
@@ -103,7 +103,7 @@ class StrategyProfile(object):
 
         :return: self
         """
-        for player in xrange(len(self.shape)):
+        for player in range(len(self.shape)):
             self.randomizePlayerStrategy(player)
         return self
 

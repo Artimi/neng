@@ -45,14 +45,14 @@ class NengTestCase(unittest.TestCase):
 
     def assertDictsWithArraysEqual(self, d1, d2):
         self.assertEqual(set(d1.keys()), set(d2.keys()))
-        for key in d1.keys():
+        for key in list(d1.keys()):
             if isinstance(d1[key], list) and isinstance(d1[key][0], np.ndarray):
                 self.assertListOfArraysEqual(d1[key], d2[key])
             else:
                 self.assertEqual(d1[key], d2[key])
 
     def makeListOfSP(self, l, shape):
-        return map(lambda profile: neng.StrategyProfile(profile, shape), l)
+        return [neng.StrategyProfile(profile, shape) for profile in l]
 
 
 class Test_strategy_profile(NengTestCase):
@@ -285,7 +285,7 @@ class Test_Game(NengTestCase):
 
     def test_bestResponse(self):
         for player in range(self.game_selten.num_players):
-            for coordinate in itertools.product(range(self.game_selten_shape[0]), range(self.game_selten_shape[1])):
+            for coordinate in itertools.product(list(range(self.game_selten_shape[0])), list(range(self.game_selten_shape[1]))):
                 self.assertEqual(self.game_selten_brs[player][coordinate],
                                  self.game_selten.pureBestResponse(player, coordinate))
 
@@ -359,7 +359,7 @@ class Test_Game(NengTestCase):
         for mne in self.game_seven_mne:
             self.assertTrue(self.game_seven.checkBestResponses(mne))
         sp = self.game_seven_mne[0]
-        for i in xrange(NUMBER_OF_TESTS):
+        for i in range(NUMBER_OF_TESTS):
             sp.randomize().normalize()
             self.assertFalse(self.game_seven.checkBestResponses(sp))
 
