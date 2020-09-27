@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 
 # Copyright (C) 2013 Petr Šebek
 
@@ -26,7 +26,6 @@ import numpy as np
 
 
 class StrategyProfile(object):
-
     """
     Wraps information about strategy profile of game.
     """

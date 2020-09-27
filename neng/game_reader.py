@@ -30,11 +30,11 @@ from functools import reduce
 
 
 class GameReader(object):
-
     '''
     Read games from different file formats (.nfg payoff, .nfg outcome), see
     http://www.gambit-project.org/doc/formats.html for more information.
     '''
+
     def __init__(self):
         self.game = {}
 
@@ -92,12 +92,12 @@ class GameReader(object):
         Reads content of tokens in nfg payoff format.
         """
         self.game['players'] = self.tokens[
-            self.brackets[0] + 1:self.brackets[1]]
+                               self.brackets[0] + 1:self.brackets[1]]
         self.game['num_players'] = len(self.game['players'])
         self.game['shape'] = self.tokens[self.brackets[2] + 1:self.brackets[3]]
         self.game['shape'] = list(map(int, self.game['shape']))
         payoffs_flat = self.tokens[self.brackets[3] + 1:self.brackets[3] + 1 +
-                                   reduce(mul, self.game['shape']) * self.game['num_players']]
+                                                        reduce(mul, self.game['shape']) * self.game['num_players']]
         payoffs_flat = list(map(float, payoffs_flat))
         self.payoffs = []
         for i in range(0, len(payoffs_flat), self.game['num_players']):
@@ -117,20 +117,20 @@ class GameReader(object):
                     pair -= 1
                 brackets_pairs[pair].append(i)
         self.game['players'] = self.tokens[
-            self.brackets[0] + 1:self.brackets[1]]
+                               self.brackets[0] + 1:self.brackets[1]]
         self.game['num_players'] = len(self.game['players'])
         i = 2
         self.game['shape'] = []
         while brackets_pairs[i][1] < brackets_pairs[1][1]:
             self.game['shape'].append(brackets_pairs[
-                                      i][1] - brackets_pairs[i][0] - 1)
+                                          i][1] - brackets_pairs[i][0] - 1)
             i += 1
         after_brackets = brackets_pairs[i][1] + 1
         i += 1
         outcomes = [[0] * self.game['num_players']]
         for i in range(i, len(brackets_pairs)):
             outcomes.append(
-                [float(x.translate(None, ',')) for x in self.tokens[brackets_pairs[i][0] + 2:brackets_pairs[i][1]]])
+                [float(x.replace(',', '')) for x in self.tokens[brackets_pairs[i][0] + 2:brackets_pairs[i][1]]])
         self.payoffs = [outcomes[out]
                         for out in map(int, self.tokens[after_brackets:])]
 

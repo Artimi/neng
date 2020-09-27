@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#Copyright (C) 2013 Petr Šebek
+# Copyright (C) 2013 Petr Šebek
 
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 
-#The above copyright notice and this permission notice shall be included in
-#all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHERWISE
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHERWISE
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
 import collections
@@ -52,19 +52,19 @@ class CMAES(object):
                                  'N': N,
                                  'sigma': sigma,
                                  'xmean': xmean,
-        }
+                                 }
         self.stopeval = 1e4 * self.N / 2
         self.stopfitness = 1e-10
         self.eigenval = 0
         # generation loop
         self.counteval = 0
         self.generation = 0
-        #stop criteria
+        # stop criteria
         self.stop_criteria = ("Fitness",
                               "MaxEval",
                               "NoEffectAxis",
                               "NoEffectCoord",
-                              #"Stagnation",
+                              # "Stagnation",
                               "ConditionCov"
                               "TolXUp",
                               "TolFun",
@@ -106,7 +106,7 @@ class CMAES(object):
         self.cs = (self.mueff + 2) / (self.N + self.mueff + 5)
         self.c1 = 2 / ((self.N + 1.3) ** 2 + self.mueff)
         self.cmu = min(1 - self.c1, 2 * (self.mueff - 2 + 1 / self.mueff) /
-                                    ((self.N + 2) ** 2 + self.mueff))
+                       ((self.N + 2) ** 2 + self.mueff))
         self.damps = 1 + 2 * max(0, np.sqrt((self.mueff - 1) /
                                             (self.N + 1)) - 1) + self.cs
         # initialize dynamic (internal) strategy parameters and constants
@@ -176,7 +176,7 @@ class CMAES(object):
             self.C = np.triu(self.C) + np.triu(self.C, 1).T
             self.D, self.B = np.linalg.eig(self.C)
             self.D = np.diag(np.sqrt(self.D))
-            #history
+            # history
         self.history['short_best'].append(arfitness[0])
         if len(self.history['short_best']) >= self.short_history_len:
             self.history['short_best'].popleft()
@@ -233,16 +233,16 @@ class CMAES(object):
                                 self.counteval > self.stopeval,
                                 sum(self.xmean == self.xmean + 0.1 * self.sigma * self.D[i] * self.B[:, i]) == self.N,
                                 np.any(self.xmean == self.xmean + 0.2 * self.sigma * np.sqrt(np.diag(self.C))),
-                                #len(self.history['long_median']) > self.long_history_len_down and \
-                                #np.median(list(itertools.islice(self.history['long_median'], int(0.7*len(self.history['long_median'])), None))) <= \
-                                #np.median(list(itertools.islice(self.history['long_median'],int(0.3*len(self.history['long_median']))))),
+                                # len(self.history['long_median']) > self.long_history_len_down and \
+                                # np.median(list(itertools.islice(self.history['long_median'], int(0.7*len(self.history['long_median'])), None))) <= \
+                                # np.median(list(itertools.islice(self.history['long_median'],int(0.3*len(self.history['long_median']))))),
                                 np.linalg.cond(self.C) > self.condition_cov_max,
                                 self.sigma * np.max(self.D) >= self.tolxup,
                                 max(self.history['short_best']) - min(self.history['short_best']) <= self.tolfun and
                                 self.arfitness[-1] - self.arfitness[0] <= self.tolfun,
                                 np.all(self.sigma * self.pc < self.tolx) and np.all(
                                     self.sigma * np.sqrt(np.diag(self.C)) < self.tolx)
-        )
+                                )
         if np.any(self.stop_conditions):
             self.status = self.stop_conditions.index(True)
         return True

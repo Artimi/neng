@@ -28,15 +28,14 @@ import logging
 import numpy as np
 import scipy.optimize
 
-from . import cmaes
-from . import support_enumeration
-from . import strategy_profile as sp
-from . import game_reader
+from neng import cmaes
+from neng import support_enumeration
+from neng import strategy_profile as sp
+from neng import game_reader
 from functools import reduce
 
 
 class Game(object):
-
     """
     Class Game wrap around all informations of noncooperative game. Also
     it provides basic analyzation of game, like pureBestResponse, if the game
@@ -252,7 +251,7 @@ class Game(object):
         else:
             strategy_profile_repaired = np.clip(strategy_profile_flat, 0, 1)
             out_of_box_penalty = np.sum((
-                strategy_profile_flat - strategy_profile_repaired) ** 2)
+                                                strategy_profile_flat - strategy_profile_repaired) ** 2)
             v += out_of_box_penalty
         for player in range(self.num_players):
             u = self.payoff(strategy_profile, player)
@@ -340,7 +339,7 @@ class Game(object):
         result += " ".join(map(str, self.shape))
         result += " }\n\n"
         it = np.nditer(self.array[
-                       0], order='F', flags=['multi_index', 'refs_ok'])
+                           0], order='F', flags=['multi_index', 'refs_ok'])
         payoffs = []
         while not it.finished:
             for player in range(self.num_players):

@@ -23,7 +23,7 @@
 
 import argparse
 import time
-from . import game
+from neng import game
 import logging
 import sys
 
@@ -58,8 +58,8 @@ One sample mixed Nash equilibria in n-players games (--method={CMAES,L-BFGS-B,SL
     pa('-t', '--trim', choices=('normalization', 'penalization'), default='normalization',
        help="Method for keeping strategy profile in probability distribution universum.")
     pa('-l', '--log', default="WARNING",
-        choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"),
-        help="Level of logs to save/print")
+       choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"),
+       help="Level of logs to save/print")
     pa('--log-file', default=None, help='Log file. If omitted log is printed to stdout.')
     return parser.parse_args()
 
@@ -91,6 +91,7 @@ def main():
             sys.exit("Nash equilibria did not pass the test.")
     else:
         sys.exit("Nash equilibrium was not found.")
+
 
 if __name__ == '__main__':
     main()

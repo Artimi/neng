@@ -67,11 +67,11 @@ class Test_strategy_profile(NengTestCase):
         self.assertEqual(self.profile[1][1], self.flat_profile[3])
         self.assertEqual(self.profile[2][2], self.flat_profile[7])
         np.testing.assert_array_equal(self.profile[
-                                      0], np.array(self.flat_profile[0:2]))
+                                          0], np.array(self.flat_profile[0:2]))
         np.testing.assert_array_equal(self.profile[
-                                      1], np.array(self.flat_profile[2:5]))
+                                          1], np.array(self.flat_profile[2:5]))
         np.testing.assert_array_equal(self.profile[
-                                      2], np.array(self.flat_profile[5:8]))
+                                          2], np.array(self.flat_profile[5:8]))
 
     @nose.tools.raises(IndexError)
     def test_get_key_fail(self):
@@ -268,7 +268,7 @@ class Test_Game(NengTestCase):
         self.game_seven_shape = [7, 7]
         self.game_seven_mne = [
             [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-                1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+             1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
              0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             [0.0, 0.13143631436314362, 0.0, 0.0, 0.0, 0.0, 0.86856368563685649,
@@ -285,7 +285,8 @@ class Test_Game(NengTestCase):
 
     def test_bestResponse(self):
         for player in range(self.game_selten.num_players):
-            for coordinate in itertools.product(list(range(self.game_selten_shape[0])), list(range(self.game_selten_shape[1]))):
+            for coordinate in itertools.product(list(range(self.game_selten_shape[0])),
+                                                list(range(self.game_selten_shape[1]))):
                 self.assertEqual(self.game_selten_brs[player][coordinate],
                                  self.game_selten.pureBestResponse(player, coordinate))
 
@@ -353,7 +354,7 @@ class Test_Game(NengTestCase):
         # support_enumeration method because of implementation
         # isMixedBestResponse method, it takes only nondegenerate games.
         # self.assertListofStrategyProfileAlmostEqual(self.game_selten.findEquilibria('support_enumeration'),
-                                                    # self.game_selten_mne_profile)
+        # self.game_selten_mne_profile)
 
     def test_checkBestResponses(self):
         for mne in self.game_seven_mne:
